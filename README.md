@@ -1,3 +1,9 @@
 # expedientes_obras
 
-soy patricio amigo de la chechu
+para generar requeriments
+
+pip freeze > requeriments.txt
+
+y para restaurar
+
+pip install -r requirements.txt
