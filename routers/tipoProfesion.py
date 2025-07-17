@@ -2,11 +2,12 @@ from fastapi import APIRouter, Depends, Body, Form
 from typing import List
 from sqlmodel import Session, select
 from models.tipoProfesion import TipoProfesion
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import RedirectResponse, HTMLResponse,JSONResponse
 from fastapi import Request
 from config.conexion import get_session
 from config.conexion import session_dep 
 from fastapi.templating import Jinja2Templates
+from models.profesional import Profesional
 
 router = APIRouter()
 
@@ -67,6 +68,17 @@ async def delete_tipoProfesion(
     tipoProfesion = session.get(TipoProfesion, idTipoProfesion)
     if not tipoProfesion:
         return {"error": "Tipo Profesion no encontrado"}
+    
+    # Validar que el tipo de profesion no este asignado algun profesional
+    profesionales = session.exec(
+        select(Profesional).where(Profesional.idTipoProfesion == idTipoProfesion)
+    ).first()
+    
+    if profesionales is not None:
+        return JSONResponse(
+        content={"error": "No se puede eliminar el Tipo de Profesión porque está asignado a uno o más profesionales."},
+        status_code=400
+        )
     
     session.delete(tipoProfesion)
     session.commit()

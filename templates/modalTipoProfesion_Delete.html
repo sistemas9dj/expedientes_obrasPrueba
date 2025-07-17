@@ -1,6 +1,6 @@
 {% block modal %}
 <div class="modal fade" id="delete_TipoProfesion" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
-    <div class="modal-dialog modal-lg ">
+    <div class="modal-dialog modal-xl ">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="exampleModalLabel">Eliminar Tipo Profesion</h4>
@@ -11,8 +11,10 @@
             <div class="modal-body">
                  
               <fieldset class="form-group">
-                <h3 class="modal-title2" class="text-center text-muted">¿Estas seguro de eliminar el Tipo Profesion?</h3> 
-              </fieldset>
+                <div class="text-center">
+                    <h3 class="modal-title2" class="text-center text-muted" >¿Estas seguro de eliminar el Tipo Profesion?</h3> 
+                </div>
+               </fieldset>
             </div>
 
             <div class="modal-footer">
@@ -29,13 +31,21 @@ document.getElementById("eliminar_TipoProfesion").addEventListener("click", asyn
 
         fetch(`/tipoProfesion/${id}`, {
                     method: "DELETE",
-        }).then(response => {
-        if (response.ok) {
-            location.reload(); // o actualizar la tabla
-        } else {
-            alert("Error al eliminar");
-         }
-      });
+        }).then(response => response.json().then(data => ({ status: response.status, body: data })))
+          .then(({ status, body }) => {
+                if (status === 200) {
+                    alert("El Tipo de Profesión ha sido eliminado exitosamente.");
+                    location.reload();
+                } else if (body.error) {
+                    alert(body.error);  // <-- este es el mensaje real del backend
+                } else {
+                    alert("Error inesperado al eliminar.");
+                }
+         })
+        .catch(error => {
+            console.error("Error en la solicitud:", error);
+            alert("Error de red o servidor.");
+        });
 });
 </script>
 {% endblock modal %}

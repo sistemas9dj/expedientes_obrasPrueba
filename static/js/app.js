@@ -1,3 +1,25 @@
+
+function handleMask(event,mask){with(event){
+		stopPropagation()
+		preventDefault()
+		if(!charCode)return
+		var c=String.fromCharCode(charCode)
+		if(c.match(/\D/))return
+		with(target){var val=value.substring(0,selectionStart)+c+value.substr(selectionEnd)
+		var pos=selectionStart+1}}
+		var nan=count(val,/\D/,pos)
+		val=val.replace(/\D/g,'')
+		var mask=mask.match(/^(\D*)(.+9)(\D*)$/)
+		if(!mask)return
+		if(val.length>count(mask[2],/9/))return
+		for(var txt='',im=0,iv=0;im<mask[2].length&&iv<val.length;im+=1){var c=mask[2].charAt(im)
+		txt+=c.match(/\D/)?c:val.charAt(iv++)}
+		with(event.target){value=mask[1]+txt+mask[3]
+		selectionStart=selectionEnd=pos+(pos==1?mask[1].length:count(value,/\D/,pos)-nan)}
+		function count(str,c,e){e=e||str.length
+		for(var n=0,i=0;i<e;i+=1)if(str.charAt(i).match(c))n+=1
+		return n}}
+        
 function cerrarModal(idModal) {
        var modal = document.getElementById(idModal);
        modal.style.display = "none"; //  o modal.classList.remove('show');
@@ -171,33 +193,66 @@ $(document).ready(function () {
 
         let modal = $(this);
         modal.find('#IDTIPOPROFESIONDelHIDDEN').val(id);
-        modal.find('.modal-title2').text('¿Estás seguro de eliminar el Tipo: ' + nombre + ' de Profesion ?');     
+        modal.find('.modal-title2').text('¿Estás seguro de eliminar el Tipo de Profesión: ' + nombre + ' ?');     
     });
 
-
+ 
     // MODAL Update Profesional - Muestra los datos del Profesional
     $('#update_Profesional').on('show.bs.modal', function (event) {
         let button = $(event.relatedTarget);
         let id = button.data('id');
         let nombre = button.data('nombre');
-        let descripcion = button.data('descripcion');
-
+        let apellido = button.data('apellido');
+        let cuil = button.data('cuil');
+        let calle = button.data('calle');
+        let nrocalle = button.data('nrocalle');
+        let piso = button.data('piso');
+        let dpto = button.data('dpto');
+        let areacel = button.data('areacel');
+        let nrocel = button.data('nrocel');
+        let idtipoprofesion = button.data('idtipoprof');
+        let matricula = button.data('matricula');
+        let razonsocial = button.data('razonsocial');
+        let mail = button.data('mail');
+     
         let modal = $(this);
+
         modal.find('#IDPROFESIONALEditHIDDEN').val(id);
-        modal.find('#NOMBREEdit').val(nombre);
-        modal.find('#DESCRIPCIONEdit').val(descripcion);
+        modal.find('#apellidoEdit').val(apellido);
+        modal.find('#nombreEdit').val(nombre);
+        modal.find('#cuil_cuitEdit').val(cuil);
+        modal.find('#calleEdit').val(calle);
+        modal.find('#nroCalleEdit').val(nrocalle);
+        modal.find('#pisoEdit').val(piso);
+        modal.find('#dptoEdit').val(dpto);
+        modal.find('#areaCelularEdit').val(areacel);
+        modal.find('#nroCelularEdit').val(nrocel);
+        modal.find('#idTipoProfesionEdit').val(idtipoprofesion);
+        //modal.find('.modal-body #IdTipoProfesionEdit').val(idtipoprofesion);
+
+        modal.find('#matriculaEdit').val(matricula);
+        modal.find('#razonSocialEdit').val(razonsocial);
+        modal.find('#emailEdit').val(mail);
+
+
+
     });
 
     // MODAL ELIMINAR Profesional - Muestra los datos del Profesional
     $('#delete_Profesional').on('show.bs.modal', function (event) {
         let button = $(event.relatedTarget);
         let id = button.data('id');
+        let apellido = button.data('apellido');
         let nombre = button.data('nombre');
-        let descripcion = button.data('descripcion');
-
+        
         let modal = $(this);
         modal.find('#IDPROFESIONALDelHIDDEN').val(id);
-        modal.find('.modal-title2').text('¿Estás seguro de eliminar el Profesional: ' + nombre );     
+        modal.find('.modal-title2').text('¿Estás seguro de eliminar el Profesional: ' + apellido + ', ' + nombre );     
     });
+
+
+
+
+    
 });
 

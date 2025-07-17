@@ -31,6 +31,7 @@ document.getElementById("eliminar_EstadoExpediente").addEventListener("click", a
                     method: "DELETE",
         }).then(response => {
         if (response.ok) {
+            alert("El Estado de Expediente ha sido eliminado exitosamente.");
             location.reload(); // o actualizar la tabla
         } else {
             alert("Error al eliminar");

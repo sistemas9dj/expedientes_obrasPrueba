@@ -28,6 +28,7 @@ document.getElementById("eliminar_Inspector").addEventListener("click", async ()
                     method: "DELETE",
         }).then(response => {
         if (response.ok) {
+            alert("El Inspector ha sido eliminado exitosamente.");
             location.reload(); // o actualizar la tabla
         } else {
             alert("Error al eliminar");

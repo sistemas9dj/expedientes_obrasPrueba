@@ -10,12 +10,14 @@
 {% include "modalProfesional_Delete.html" %}
 
 <!--Armar la tabla de inspectors para el Crud-->
-{% import "tablas.html" as tablas %}
+{% import "tablaProfesional.html" as tablas %}
 
 <!--Nombre de las Columnas a mostar-->
 {% set encabezado = [
+      {'nombre': 'CUIL/CUIT'},
+      {'nombre': 'APELLIDO'},
       {'nombre': 'NOMBRE'},
-      {'nombre': 'DESCRIPCION'}
+      {'nombre': 'MATRICULA'}
     ] %}
 
 <!--Valores de las filas a mostar-->
@@ -25,8 +27,20 @@
  {% for profesional in profesionales %}
     {% set _ = valores.append({
             'id': profesional.idProfesional,
+            'cuil_cuit': profesional.cuil_cuit,
+            'apellido': profesional.apellido,
             'nombre': profesional.nombre,
-            'descripcion': profesional.descripcion
+            'matricula': profesional.matricula,
+            'areaCelular': profesional.areaCelular,
+            'nroCelular': profesional.nroCelular,
+            'calle': profesional.calle,
+            'nroCalle': profesional.nroCalle,
+            'piso': profesional.piso,
+            'dpto': profesional.dpto,
+            'razonSocial': profesional.razonSocial,
+            'idTipoProfesion': profesional.idTipoProfesion,
+            'mail': profesional.email
+            
         }) %}
  {% endfor %}    
 

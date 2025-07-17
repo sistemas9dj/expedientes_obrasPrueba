@@ -1,3 +1,4 @@
+from typing import List
 from sqlmodel import SQLModel, Field
 
 class TipoProfesion(SQLModel, table=True):
@@ -6,3 +7,5 @@ class TipoProfesion(SQLModel, table=True):
     idTipoProfesion: int | None = Field(default=None, primary_key=True)
     nombre: str = Field(index=True, nullable=False)
     descripcion: str | None = Field(default=None, nullable=True)
+
+    
