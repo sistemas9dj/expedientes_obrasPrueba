@@ -10,6 +10,7 @@ from routers.tipoExpediente import router as tipoExpedienteRouter
 from routers.tipoObra import router as tipoObraRouter
 from routers.tipoProfesion import router as tipoProfesionRouter
 from routers.profesional import router as profesionalRouter
+from routers.expediente import router as expedienteRouter
 
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
@@ -28,7 +29,7 @@ app.include_router(tipoExpedienteRouter, prefix="", tags=["tiposExpedientes"])
 app.include_router(tipoObraRouter, prefix="", tags=["tiposObras"])
 app.include_router(tipoProfesionRouter, prefix="", tags=["tiposProfesiones"])
 app.include_router(profesionalRouter, prefix="", tags=["profesionales"])
-
+app.include_router(expedienteRouter, prefix="", tags=["expedientes"])
 
 
 @app.get("/", response_class=HTMLResponse)

@@ -18,6 +18,7 @@ class Profesional(SQLModel, table=True):
     nroCelular: int | None = Field(default=None, nullable=True)
     matricula: str | None = Field(default=None, nullable=True)
     email: str | None = Field(default=None, nullable=True)
+    
     idTipoProfesion: int | None = Field(default=None, foreign_key="TipoProfesion.idTipoProfesion")
 
     # Relación con TipoProfesion

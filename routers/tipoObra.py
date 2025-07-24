@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Body, Form
 from typing import List
 from sqlmodel import Session, select
 from models.tipoObra import TipoObra
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import RedirectResponse
 from fastapi import Request
 from config.conexion import get_session
 from config.conexion import session_dep 

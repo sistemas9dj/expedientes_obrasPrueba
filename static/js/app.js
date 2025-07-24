@@ -251,6 +251,45 @@ $(document).ready(function () {
     });
 
 
+   // MODAL Update Expediente - Muestra los datos del Expediente
+    $('#update_Expediente').on('show.bs.modal', function (event) {
+        let button = $(event.relatedTarget);
+    
+        let id = button.data('id');
+        let idTipoObra = button.data('idtipoobra');
+        let nroExpediente = button.data('nroexpediente');
+        let nroPartida = button.data('nropartida');
+        let nroExpedienteMesaEntrada = button.data('nroexpedientemesaentr');
+        let anioMesaEntrada = button.data('aniomesaentr');
+        let sucesion = button.data('sucesion');
+        let observaciones = button.data('observaciones');
+        let idEstadoExpediente = button.data('idestadoexpediente');
+       
+     
+        let modal = $(this);
+
+        modal.find('#IDEXPEDIENTEEditHIDDEN').val(id);
+        modal.find('#idTipoObraEdit').val(idTipoObra);
+        modal.find('#nroExpedienteEdit').val(nroExpediente);
+        modal.find('#nroPartidaEdit').val(nroPartida);
+        modal.find('#nroExpedienteMesaEntradaEdit').val(nroExpedienteMesaEntrada);
+        modal.find('#anioMesaEntradaEdit').val(anioMesaEntrada);
+        modal.find('#sucesionEdit').val(sucesion);
+        modal.find('#observacionesEdit').val(observaciones);
+        modal.find('#idEstadoExpedienteEdit').val(idEstadoExpediente);
+             
+    });
+
+    // MODAL ELIMINAR Expediente - Muestra los datos del Expediente
+    $('#delete_Expediente').on('show.bs.modal', function (event) {
+        let button = $(event.relatedTarget);
+        let id = button.data('id');
+        let nroExpediente = button.data('nroexpediente');
+        
+        let modal = $(this);
+        modal.find('#IDEXPEDIENTEDelHIDDEN').val(id);
+        modal.find('.modal-title2').text('¿Estás seguro de eliminar el Expediente: ' +  nroExpediente );     
+    });
 
 
     

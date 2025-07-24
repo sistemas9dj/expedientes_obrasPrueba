@@ -1,0 +1,33 @@
+from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import Column, DateTime, func
+from typing import Optional
+from datetime import datetime
+from models.tipoObra import TipoObra
+
+class Expediente(SQLModel, table=True):
+    __tablename__ = "Expediente"
+    
+    idExpediente: int | None = Field(default=None, primary_key=True)
+    #El nro de expediente se forma con el nroEntrada + el anioMesa de Entrada
+    nroEntrada: int # 3 digitos, se reinicia con cada año 
+    anioMesaEntrada: int 
+    nroExpedienteMesaEntrada: str | None = Field(default=None, nullable=True)
+    nroPartida: str | None = Field(default=None, nullable=True)
+    sucesion: int | None = Field(default=None, nullable=True)
+    observaciones: str | None = Field(default=None, nullable=True)
+
+    #fechaIngresoSistema: datetime | None = Field(default= None, nullable=True)
+    fechaIngresoSistema: datetime = Field(
+        sa_column=Column(DateTime, server_default=func.now())
+    )
+
+    fechaUltimaMod: datetime | None = Field(default=None, nullable=True)
+
+    idTipoObra: int | None = Field(default=None, foreign_key="TipoObra.idTipoObra")
+
+    # Relación con TipoObra 1 a n
+    tipoObra: Optional[TipoObra] = Relationship()
+
+    #relaciones n a n
+    idEstadoExpediente: int | None = Field(default=None, nullable=True) 
+    

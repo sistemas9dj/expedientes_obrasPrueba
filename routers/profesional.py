@@ -41,7 +41,7 @@ async def agregar_profesional_get(request: Request, session: Session = Depends(g
 @router.post("/agregar_profesional", response_model=Profesional)
 async def agregar_profesional_post(
     
-    request: Request,
+   # request: Request,
     cuil_cuit : str = Form(...),
     nombre : str = Form(...),
     apellido: str = Form(...),
