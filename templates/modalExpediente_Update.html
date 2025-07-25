@@ -7,6 +7,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             </div>
             <input type="hidden" id="IDEXPEDIENTEEditHIDDEN" name="IDEXPEDIENTEEditHIDDEN"/>
+            <input type="hidden" id="IDESTADOEXPEDIENTEEditHIDDEN" name="IDESTADOEXPEDIENTEEditHIDDEN"/>
             <div class="modal-body">
                 <div class="container contenido">
                     <!-- Content Wrapper -->
@@ -35,7 +36,7 @@
                                                         </div>
 
                                                         <div class="form-group col-md-6 mb-1">
-                                                            <label for="nombre"><strong>ESTADO EXPEDIETE *</strong> </label>
+                                                            <label for="nombre"><strong>ESTADO EXPEDIENTE *</strong> </label>
                                                             <select name="idEstadoExpedienteEdit" id="idEstadoExpedienteEdit" class="form-control" required>
                                                                  {% for estado in estadosExpedientes %}
                                                                     <option value="{{ estado.idEstadoExpediente }}">{{ estado.nombre }}</option>
@@ -116,7 +117,8 @@
     const anioMesaEntrada = document.getElementById('anioMesaEntradaEdit').value;
     const sucesion = document.getElementById('sucesionEdit').value;
     const observaciones = document.getElementById('observacionesEdit').value;
-    const idEstadoExpediente = document.getElementById('idEstadoExpedienteEdit').value;
+    const idEstadoExpedienteNuevo = document.getElementById('idEstadoExpedienteEdit').value;
+    const idEstadoExpedienteActual = document.getElementById('IDESTADOEXPEDIENTEEditHIDDEN').value;
 
     try {
         const response = await fetch(`/expediente/${id}`, {
@@ -125,20 +127,14 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                id: id,
-                nombre: nombre,
-                apellido: apellido,
-                cuil_cuit: cuil,
-                calle: calle,
-                nroCalle: nroCalle,
-                piso: piso,
-                nroDpto: nroDpto,
-                areaCelular: areaCelular,
-                nroCelular: nroCelular,
-                email: email,
-                matricula: matricula,
-                razonSocial: razonSocial,
-                idTipoProfesion: idTipoProfesion
+                idTipoObra: idTipoObra,
+                nroPartida: nroPartida,
+                nroExpedienteMesaEntrada: nroExpedienteMesaEntrada,
+                anioMesaEntrada: anioMesaEntrada,
+                sucesion: sucesion,
+                observaciones: observaciones,
+                idEstadoExpNuevo: idEstadoExpedienteNuevo,
+                idEstadoExpActual: idEstadoExpedienteActual
             })
         });
 

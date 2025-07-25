@@ -265,7 +265,6 @@ $(document).ready(function () {
         let observaciones = button.data('observaciones');
         let idEstadoExpediente = button.data('idestadoexpediente');
        
-     
         let modal = $(this);
 
         modal.find('#IDEXPEDIENTEEditHIDDEN').val(id);
@@ -277,6 +276,7 @@ $(document).ready(function () {
         modal.find('#sucesionEdit').val(sucesion);
         modal.find('#observacionesEdit').val(observaciones);
         modal.find('#idEstadoExpedienteEdit').val(idEstadoExpediente);
+        modal.find('#IDESTADOEXPEDIENTEEditHIDDEN').val(idEstadoExpediente);
              
     });
 

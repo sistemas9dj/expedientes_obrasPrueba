@@ -22,25 +22,28 @@
     ] %}
 
 <!--Valores de las filas a mostar-->
- {% set valores = [
+{% set valores = [
       ] %}
  
- 
- {% for expediente in expedientes %}
+{% for item in expedientes %}
+    {% set expediente = item.expediente %}
+    {% set estado_id = item.ultimo_estado_id %}
+    {% set estado_nombre = item.ultimo_estado_nombre %}
+    
     {% set _ = valores.append({
-            'id': expediente.idExpediente,
-            'nroExpediente': expediente.nroEntrada ~ '/' ~ expediente.anioMesaEntrada,
-            'tipoObra': expediente.tipoObra.nombre if expediente.tipoObra else 'Sin Tipo',
-            'estado': expediente.idEstadoExpediente,  
-            'fechaUltimaMod': expediente.fechaUltimaMod.strftime('%d/%m/%Y') if expediente.fechaUltimaMod else '',
-            'idTipoObra': expediente.idTipoObra,
-            'idEstadoExpediente': expediente.idEstadoExpediente,
-            'nropartida': expediente.nroPartida,
-            'nroExpedienteMesaEntrada': expediente.nroExpedienteMesaEntrada,
-            'anioMesaEntrada': expediente.anioMesaEntrada,
-            'sucesion': expediente.sucesion,
-            'observaciones': expediente.observaciones
-        }) %}
+        'id': expediente.idExpediente,
+        'nroExpediente': expediente.nroEntrada ~ '/' ~ expediente.anioMesaEntrada,
+        'tipoObra': expediente.tipoObra.nombre if expediente.tipoObra else 'Sin Tipo',
+        'estado': estado_nombre,
+        'fechaUltimaMod': expediente.fechaUltimaMod.strftime('%d/%m/%Y') if expediente.fechaUltimaMod else '',
+        'idTipoObra': expediente.idTipoObra,
+        'nroPartida': expediente.nroPartida,
+        'nroExpedienteMesaEntrada': expediente.nroExpedienteMesaEntrada,
+        'anioMesaEntrada': expediente.anioMesaEntrada,
+        'sucesion': expediente.sucesion,
+        'observaciones': expediente.observaciones,
+        'idEstadoExpediente': estado_id,
+    }) %}
 {% endfor %}
 
  <!--PARAMETROS:   mostrar_tabla(titulo, nomBtAdd, nomtabla, columnas, encabezado,  valores, request) -->
