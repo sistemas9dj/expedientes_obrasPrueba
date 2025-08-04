@@ -56,7 +56,7 @@
                                                         </div>
                                                         <div class="form-group col-md-6 mb-2">
                                                             <label for="nombre"><strong>PARTIDA *</strong> </label>
-                                                            <input type="number" class="form-control" align="left" title="Partida" name="nroPartidaEdit" id="nroPartidaEdit" placeholder="Partida *"  maxlength="100" required/>
+                                                            <input type="number" class="form-control" align="left" title="Partida" name="nroPartidaEdit" id="nroPartidaEdit" placeholder="Partida *" min="0" step="1" max="9999999" required/>
                                                         </div>
                                                     </div>    
                                                     <div class="row">
@@ -105,7 +105,13 @@
 </div>
 
 <script>
+    document.getElementById("nroPartidaEdit").addEventListener("keydown", function (e) {
+       validarCaracterEnNro(e);
+    });
 
+    document.getElementById("nroPartidaEdit").addEventListener("input", function (e) {
+       validarLongitudNro(e, 7)
+    });
     
     document.getElementById('modificar_Expediente').addEventListener('click', async function(e) {
     e.preventDefault(); // Evita que el formulario haga un POST tradicional
@@ -121,6 +127,7 @@
     const idEstadoExpedienteActual = document.getElementById('IDESTADOEXPEDIENTEEditHIDDEN').value;
 
     try {
+    alert("nroPartida: " + nroPartida);
         const response = await fetch(`/expediente/${id}`, {
             method: 'PUT',
             headers: {

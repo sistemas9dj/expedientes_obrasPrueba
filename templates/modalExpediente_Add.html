@@ -40,7 +40,7 @@
                                                     </div>
                                                     <div class="form-group col-md-6 mb-2">
                                                         <label for="nombre"><strong>PARTIDA *</strong> </label>
-                                                        <input type="number" class="form-control" align="left" title="Partida" name="nroPartida" id="nroPartida" placeholder="Partida *"  maxlength="100" required/>
+                                                        <input type="number" class="form-control" align="left" title="Partida" name="nroPartida" id="nroPartida" placeholder="Partida *"  min="0" step="1" max="9999999" required/>
                                                     </div>
                                                 </div>    
                                                 <div class="row">
@@ -91,6 +91,14 @@
 {% endblock modal %}
 
 <script>
+    document.getElementById("nroPartida").addEventListener("keydown", function (e) {
+       validarCaracterEnNro(e);
+    });
+
+    document.getElementById("nroPartida").addEventListener("input", function (e) {
+       validarLongitudNro(e, 7)
+    });
+
     // Establecer el año actual como valor por defecto y límite máximo
     const inputAnio = document.getElementById("anioIngresoMesaEntrada");
     const anioActual = new Date().getFullYear();

@@ -1,29 +1,31 @@
-from fastapi import APIRouter, Depends, Body, Form
-from typing import List
-from sqlmodel import Session, select
-from models.estadoInspeccion import EstadoInspeccion
-from fastapi.responses import RedirectResponse
-from fastapi import Request
-from config.conexion import get_session
+from fastapi import APIRouter, Depends, Form, Body, Request
+from sqlmodel import Session
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse
+from config.conexion import get_session
+from services.estadoInspeccion_service import EstadoInspeccionService
+from models.estadoInspeccion import EstadoInspeccion
+from typing import List
 
 router = APIRouter()
-
 templates = Jinja2Templates(directory="templates")
 
+
 @router.get("/estadosInspecciones", response_model=List[EstadoInspeccion])
-async def get_estadoInspecciones(request: Request, session: Session = Depends(get_session)):
-    estadosInspecciones = session.exec(select(EstadoInspeccion).order_by(EstadoInspeccion.nombre)).all()
-   
-    return templates.TemplateResponse("listar_estadosInspecciones.html", { 
+async def listar(request: Request, session: Session = Depends(get_session)):
+    service = EstadoInspeccionService(session)  # ✅ instanciás la clase
+    estados = service.listar_estados()  # ✅ usás el método de instancia
+    return templates.TemplateResponse("listar_estadosInspecciones.html", {
         "request": request,
-        "estadosInspecciones": estadosInspecciones
+        "estadosInspecciones": estados
     })
 
-@router.get("/agregar_estadoInspeccion", response_model=EstadoInspeccion)
-async def agregar_estadoInspeccion_get(request: Request, session: Session = Depends(get_session)):
-    return templates.TemplateResponse("agregar_estadoInspeccion.html",{"request":request})
-                                      
+@router.get("/agregar_estadoExpediente", response_model=EstadoInspeccion)
+async def agregar(nombre: str = Form(...), descripcion: str = Form(...), session: Session = Depends(get_session)):
+    service = EstadoInspeccionService(session)
+    service.crear_estado(nombre, descripcion)
+    return RedirectResponse("/estadosInspecciones", status_code=303)
+
 @router.post("/agregar_estadoInspeccion", response_model=EstadoInspeccion)
 async def agregar_estadoInspeccion_post(
     nombre : str = Form(...),
@@ -34,10 +36,10 @@ async def agregar_estadoInspeccion_post(
         nombre=nombre,
         descripcion=descripcion)
     
-    session.add(nuevo_estadoInspeccion)
-    session.commit()
-    session.refresh(nuevo_estadoInspeccion)
+    service = EstadoInspeccionService(session)
+    service.crear_estado(nuevo_estadoInspeccion)
     return RedirectResponse("/estadosInspecciones", status_code=303)
+
 
 @router.put("/estadoInspeccion/{idEstadoInspeccion}", response_model=EstadoInspeccion)
 async def update_estadoInspeccion(
@@ -47,28 +49,26 @@ async def update_estadoInspeccion(
 ):
     estadoInspeccion = session.get(EstadoInspeccion, idEstadoInspeccion)
     if not estadoInspeccion:
-        return {"error": "Estado de la Inspeccion no encontrado"}
+        return {"error": "Estado de Inspeccion no encontrado"}
     
-    estadoInspeccion.nombre = estadoInspeccion_data["nombre"]
-    estadoInspeccion.descripcion = estadoInspeccion_data.get("descripcion", "")
+    update_estado = EstadoInspeccion(
+        idEstadoInspeccion = idEstadoInspeccion,
+        nombre = estadoInspeccion_data["nombre"],
+        descripcion = estadoInspeccion_data.get("descripcion", "")
+    )
     
-    session.add(estadoInspeccion)
-    session.commit()
-    session.refresh(estadoInspeccion)
-    
-    return estadoInspeccion
+    service = EstadoInspeccionService(session)
+    service.actualizar_estado(update_estado)
+    return update_estado
 
 @router.delete("/estadoInspeccion/{idEstadoInspeccion}")
-async def delete_estadoInspeccion(
+async def delete_estadoExpediente(
     idEstadoInspeccion: int,
     session: Session = Depends(get_session)
 ):
-    estadoInspeccion = session.get(EstadoInspeccion, idEstadoInspeccion)
-    if not estadoInspeccion:
-        return {"error": "Estado Inspeccion no encontrado"}
-    
-    session.delete(estadoInspeccion)
-    session.commit()
-    
-    return {"message": "Estado Inspeccion eliminado exitosamente"}
+    service = EstadoInspeccionService(session)
+    exito = service.eliminar_estado(idEstadoInspeccion)
+    if not exito:
+        return {"error": "Estado no encontrado"}
+    return {"message": "Estado Inspección eliminado exitosamente"}
 
