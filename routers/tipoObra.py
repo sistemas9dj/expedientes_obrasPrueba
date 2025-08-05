@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Body, Form
 from typing import List
 from sqlmodel import Session, select
 from models.tipoObra import TipoObra
+from services.tipoObra_service import TipoObraService
 from fastapi.responses import RedirectResponse
 from fastapi import Request
 from config.conexion import get_session
@@ -14,7 +15,9 @@ templates = Jinja2Templates(directory="templates")
 
 @router.get("/tiposObras", response_model=List[TipoObra])
 async def get_tiposObras(request: Request, session: Session = Depends(get_session)):
-    tiposObras = session.exec(select(TipoObra).order_by(TipoObra.nombre)).all()
+        
+    service = TipoObraService(session)  # ✅ instanciás la clase
+    tiposObras = service.listar_tipoObras()  # ✅ usás el método de instancia
    
     return templates.TemplateResponse("listar_tiposObras.html", { 
         "request": request,
@@ -24,6 +27,7 @@ async def get_tiposObras(request: Request, session: Session = Depends(get_sessio
 @router.get("/agregar_tipoObra", response_model=TipoObra)
 async def agregar_tipoObra_get(request: Request, session: Session = Depends(get_session)):
     return templates.TemplateResponse("agregar_tipoObra.html",{"request":request})
+
                                       
 @router.post("/agregar_tipoObra", response_model=TipoObra)
 async def agregar_tipoObra_post(
@@ -35,9 +39,9 @@ async def agregar_tipoObra_post(
         nombre=nombre,
         descripcion=descripcion)
     
-    session.add(nuevo_tipoObra)
-    session.commit()
-    session.refresh(nuevo_tipoObra)
+    service = TipoObraService(session)  # ✅ instanciás la clase
+    service.crear_tipoExpediente(nuevo_tipoObra)  # ✅ usás el método de instancia
+  
     return RedirectResponse("/tiposObras", status_code=303)
 
 @router.put("/tipoObra/{idTipoObra}", response_model=TipoObra)
@@ -53,10 +57,9 @@ async def update_tipoObra(
     tipoObra.nombre = tipoObra_data["nombre"]
     tipoObra.descripcion = tipoObra_data.get("descripcion", "")
     
-    session.add(tipoObra)
-    session.commit()
-    session.refresh(tipoObra)
-    
+    service = TipoObraService(session)  # ✅ instanciás la clase
+    service.actualizar_tipoObra(tipoObra)  # ✅ usás el método de instancia
+     
     return tipoObra
 
 @router.delete("/tipoObra/{idTipoObra}")
@@ -64,12 +67,10 @@ async def delete_tipoObra(
     idTipoObra: int,
     session: Session = Depends(get_session)
 ):
-    tipoObra = session.get(TipoObra, idTipoObra)
-    if not tipoObra:
+    service = TipoObraService(session)
+    exito = service.eliminar_tipoObra(idTipoObra)
+    if not exito:
         return {"error": "Tipo Obra no encontrado"}
-    
-    session.delete(tipoObra)
-    session.commit()
-    
     return {"message": "Tipo Obra eliminado exitosamente"}
+
 

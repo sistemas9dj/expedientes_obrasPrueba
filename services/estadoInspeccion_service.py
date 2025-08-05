@@ -13,10 +13,6 @@ class EstadoInspeccionService:
     def obtener__estado_por_id(self, id: int) -> Optional[EstadoInspeccion]:
         return estadoInspeccion_repo.get_by_id(self.session, id)
 
-    def crear_estado(self, nombre: str, descripcion: str) -> EstadoInspeccion:
-        nuevo_estado = EstadoInspeccion(nombre=nombre, descripcion=descripcion)
-        return estadoInspeccion_repo.create(self.session, nuevo_estado)
-    
     def crear_estado(self, nuevoEstado: EstadoInspeccion) -> EstadoInspeccion:
         return estadoInspeccion_repo.create(self.session, nuevoEstado)
 

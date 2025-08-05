@@ -13,10 +13,6 @@ class EstadoExpedienteService:
     def obtener__estado_por_id(self, id: int) -> Optional[EstadoExpediente]:
         return estadoExpediente_repo.get_by_id(self.session, id)
 
-    def crear_estado(self, nombre: str, descripcion: str) -> EstadoExpediente:
-        nuevo_estado = EstadoExpediente(nombre=nombre, descripcion=descripcion)
-        return estadoExpediente_repo.create(self.session, nuevo_estado)
-    
     def crear_estado(self, nuevoEstado: EstadoExpediente) -> EstadoExpediente:
         return estadoExpediente_repo.create(self.session, nuevoEstado)
 
