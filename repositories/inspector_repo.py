@@ -8,18 +8,18 @@ def get_all(session: Session) -> List[Inspector]:
 def get_by_id(session: Session, id: int) -> Optional[Inspector]:
     return session.get(Inspector, id)
 
-def create(session: Session, estado: Inspector) -> Inspector:
-    session.add(estado)
+def create(session: Session, inspector: Inspector) -> Inspector:
+    session.add(inspector)
     session.commit()
-    session.refresh(estado)
-    return estado
+    session.refresh(inspector)
+    return inspector
 
-def update(session: Session, estado: Inspector) -> Inspector:
-    session.add(estado)
+def update(session: Session, inspector: Inspector) -> Inspector:
+    session.add(inspector)
     session.commit()
-    session.refresh(estado)
-    return estado
+    session.refresh(inspector)
+    return inspector
 
-def delete(session: Session, estado: Inspector):
-    session.delete(estado)
+def delete(session: Session, inspector: Inspector):
+    session.delete(inspector)
     session.commit()

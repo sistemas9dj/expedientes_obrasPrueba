@@ -56,6 +56,7 @@ async def update_tipoExpediente(
     
     service = TipoExpedienteService(session)
     service.actualizar_tipoExpediente(tipoExpediente)
+    
     return tipoExpediente
 
 @router.delete("/tipoExpediente/{idTipoExpediente}")

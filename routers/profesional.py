@@ -3,6 +3,7 @@ from typing import List, Optional
 from sqlmodel import Session, select
 from sqlalchemy.orm import selectinload
 from models.profesional import Profesional
+from services.profesional_service import ProfesionalService
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi import Request
 from config.conexion import get_session

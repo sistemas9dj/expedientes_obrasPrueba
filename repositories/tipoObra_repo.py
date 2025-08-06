@@ -8,18 +8,18 @@ def get_all(session: Session) -> List[TipoObra]:
 def get_by_id(session: Session, id: int) -> Optional[TipoObra]:
     return session.get(TipoObra, id)
 
-def create(session: Session, estado: TipoObra) -> TipoObra:
-    session.add(estado)
+def create(session: Session, tipo: TipoObra) -> TipoObra:
+    session.add(tipo)
     session.commit()
-    session.refresh(estado)
-    return estado
+    session.refresh(tipo)
+    return tipo
 
-def update(session: Session, estado: TipoObra) -> TipoObra:
-    session.add(estado)
+def update(session: Session, tipo: TipoObra) -> TipoObra:
+    session.add(tipo)
     session.commit()
-    session.refresh(estado)
-    return estado
+    session.refresh(tipo)
+    return tipo
 
-def delete(session: Session, estado: TipoObra):
-    session.delete(estado)
+def delete(session: Session, tipo: TipoObra):
+    session.delete(tipo)
     session.commit()

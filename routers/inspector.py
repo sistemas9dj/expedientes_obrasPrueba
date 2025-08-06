@@ -70,7 +70,7 @@ async def delete_inspector(
     session: Session = Depends(get_session)
 ):
     service = InspectorService(session)
-    exito = service.eliminar_Inspector(idInspector)
+    exito = service.eliminar_inspector(idInspector)
     if not exito:
         return {"error": "Inspector no encontrado"}
     return {"message": "Isnpector eliminado exitosamente"}

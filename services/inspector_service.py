@@ -24,7 +24,7 @@ class InspectorService:
         inspector.apellido = updateInspector.apellido
         return inspector_repo.update(self.session, inspector)
 
-    def eliminar_Inspector(self, id: int) -> bool:
+    def eliminar_inspector(self, id: int) -> bool:
         inspector = inspector_repo.get_by_id(self.session, id)
         if not inspector:
             return False

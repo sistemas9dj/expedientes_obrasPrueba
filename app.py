@@ -1,8 +1,7 @@
 from fastapi import FastAPI, APIRouter, Request, HTTPException, Depends
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 
-from routers.estadoExpediente import router 
-from routers.inspector import router 
 from routers.estadoExpediente import router as estadoExpedienteRouter
 from routers.estadoInspeccion import router as estadoInspeccionRouter
 from routers.inspector import router as inspectorRouter
@@ -35,5 +34,6 @@ app.include_router(expedienteRouter, prefix="", tags=["expedientes"])
 @app.get("/", response_class=HTMLResponse)
 async def get_estadosExpedientes(request: Request):
     return templates.TemplateResponse("layouts/layout.html", {"request": request})
+
 
 

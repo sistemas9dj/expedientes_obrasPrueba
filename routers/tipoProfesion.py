@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Body, Form
 from typing import List
 from sqlmodel import Session, select
 from models.tipoProfesion import TipoProfesion
+from services.tipoProfesion_service import TipoProfesionService
 from fastapi.responses import RedirectResponse, HTMLResponse,JSONResponse
 from fastapi import Request
 from config.conexion import get_session
@@ -15,8 +16,9 @@ templates = Jinja2Templates(directory="templates")
 
 @router.get("/tiposProfesiones", response_model=List[TipoProfesion])
 async def get_tiposProfesiones(request: Request, session: Session = Depends(get_session)):
-    tiposProfesiones = session.exec(select(TipoProfesion).order_by(TipoProfesion.nombre)).all()
-   
+    service = TipoProfesionService(session)  # ✅ instanciás la clase
+    tiposProfesiones = service.listar_tipoProfesiones()  # ✅ usás el método de instancia
+
     return templates.TemplateResponse("listar_tiposProfesiones.html", { 
         "request": request,
         "tiposProfesiones": tiposProfesiones
@@ -36,9 +38,9 @@ async def agregar_tipoProfesion_post(
         nombre=nombre,
         descripcion=descripcion)
     
-    session.add(nuevo_tipoProfesion)
-    session.commit()
-    session.refresh(nuevo_tipoProfesion)
+    service = TipoProfesionService(session)  # ✅ instanciás la clase
+    service.crear_tipoProfesion(nuevo_tipoProfesion)  # ✅ usás el método de instancia
+  
     return RedirectResponse("/tiposProfesiones", status_code=303)
 
 @router.put("/tipoProfesion/{idTipoProfesion}", response_model=TipoProfesion)
@@ -54,34 +56,27 @@ async def update_tipoProfesion(
     tipoProfesion.nombre = tipoProfesion_data["nombre"]
     tipoProfesion.descripcion = tipoProfesion_data.get("descripcion", "")
     
-    session.add(tipoProfesion)
-    session.commit()
-    session.refresh(tipoProfesion)
+    service = TipoProfesionService(session)  # ✅ instanciás la clase
+    service.actualizar_tipoProfesion(tipoProfesion)  # ✅ usás el método de instancia
     
     return tipoProfesion
+
 
 @router.delete("/tipoProfesion/{idTipoProfesion}")
 async def delete_tipoProfesion(
     idTipoProfesion: int,
     session: Session = Depends(get_session)
 ):
-    tipoProfesion = session.get(TipoProfesion, idTipoProfesion)
-    if not tipoProfesion:
-        return {"error": "Tipo Profesion no encontrado"}
-    
-    # Validar que el tipo de profesion no este asignado algun profesional
-    profesionales = session.exec(
-        select(Profesional).where(Profesional.idTipoProfesion == idTipoProfesion)
-    ).first()
-    
-    if profesionales is not None:
-        return JSONResponse(
-        content={"error": "No se puede eliminar el Tipo de Profesión porque está asignado a uno o más profesionales."},
-        status_code=400
-        )
-    
-    session.delete(tipoProfesion)
-    session.commit()
-    
-    return {"message": "Tipo Profesion eliminado exitosamente"}
-
+    service = TipoProfesionService(session)
+    exito = service.eliminar_tipoProfesion(idTipoProfesion)
+    print("❌ Tipo de Profesión en profesional: " + exito)
+    if exito  == "no existe":
+        print("❌ Tipo de Profesión en profesional: 1 " )
+        return {"error": "Tipo de Profesión no encontrado"}
+    elif exito == "relacionado":
+        print("❌ Tipo de Profesión en profesional: 2 " )
+        return {"error": "No se puede eliminar el Tipo de Profesión porque está asignado a algún profesional"}
+    else:
+        print("❌ Tipo de Profesión en profesional: 3 " )
+        return {"message": "Tipo de Profesión eliminado exitosamente"}
+   
