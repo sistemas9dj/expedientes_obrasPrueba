@@ -1,15 +1,14 @@
-from fastapi import FastAPI, APIRouter, Request, HTTPException, Depends
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
 
-from routers.estadoExpediente import router as estadoExpedienteRouter
-from routers.estadoInspeccion import router as estadoInspeccionRouter
-from routers.inspector import router as inspectorRouter
-from routers.tipoExpediente import router as tipoExpedienteRouter
-from routers.tipoObra import router as tipoObraRouter
-from routers.tipoProfesion import router as tipoProfesionRouter
-from routers.profesional import router as profesionalRouter
-from routers.expediente import router as expedienteRouter
+from routers.estadoExpediente_router import router as estadoExpedienteRouter
+from routers.estadoInspeccion_router import router as estadoInspeccionRouter
+from routers.inspector_router import router as inspectorRouter
+from routers.tipoExpediente_router import router as tipoExpedienteRouter
+from routers.tipoObra_router import router as tipoObraRouter
+from routers.tipoProfesion_router import router as tipoProfesionRouter
+from routers.profesional_router import router as profesionalRouter
+from routers.expediente_router import router as expedienteRouter
 
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse

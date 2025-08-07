@@ -1,34 +1,31 @@
 from fastapi import APIRouter, Depends, Body, Form
 from typing import List, Optional
 from sqlmodel import Session, select
-from sqlalchemy.orm import selectinload
+
 from models.profesional import Profesional
 from services.profesional_service import ProfesionalService
-from fastapi.responses import RedirectResponse, HTMLResponse
+from services.tipoProfesion_service import TipoProfesionService
+
+from fastapi.responses import RedirectResponse,JSONResponse
 from fastapi import Request
 from config.conexion import get_session
 from fastapi.templating import Jinja2Templates
-from models.tipoProfesion import TipoProfesion
+from fastapi import status
 
 
 router = APIRouter()
 
 templates = Jinja2Templates(directory="templates")
 
-
 @router.get("/profesionales", response_model=List[Profesional])
 async def get_profesionales(request: Request, session: Session = Depends(get_session)):
 
-    profesionales = session.exec(
-        select(Profesional)
-        .options(selectinload(Profesional.tipoProfesion))  # ✅ esta es la relación
-        .order_by(Profesional.apellido)
-    ).all()
+    service = ProfesionalService(session)  # ✅ instanciás la clase
+    profesionales = service.listar_profesionales()  # ✅ usás el método de instancia
     
-    tiposProfesiones = session.exec(
-        select(TipoProfesion).order_by(TipoProfesion.nombre)
-    ).all()
-   
+    serviceTipo = TipoProfesionService(session)  # ✅ instanciás la clase
+    tiposProfesiones = serviceTipo.listar_tipoProfesiones()  # ✅ usás el método de instancia
+          
     return templates.TemplateResponse("listar_profesionales.html", { 
         "request": request,
         "profesionales": profesionales,
@@ -56,24 +53,9 @@ async def agregar_profesional_post(
     matricula : str = Form(default=None),
     email : str = Form(default=None),
     idTipoProfesion : int = Form(...),  # debe ser int
-    
-    
+      
     session: Session = Depends(get_session)
 ):
-    
-    # Validar CUIL duplicado
-    profesional_existente = session.exec(
-        select(Profesional).where(Profesional.cuil_cuit == cuil_cuit)
-    ).first()
-    
-    if profesional_existente:
-        return HTMLResponse(content="""
-            <script>
-              alert("verifique el Cuil/Cuit. Ya existe un profesional registrado con ese CUIL.");
-              history.back();  // vuelve al formulario sin cerrar el modal
-            </script>
-        """, status_code=200)
-
     nro_calle_int = int(nroCalle) if nroCalle else None
     area_celular_int = int(areaCelular) if areaCelular else None
     nro_celular_int = int(nroCelular) if nroCelular else None
@@ -94,9 +76,9 @@ async def agregar_profesional_post(
         idTipoProfesion = idTipoProfesion   
         )
     
-    session.add(nuevo_profesional)
-    session.commit()
-    session.refresh(nuevo_profesional)
+    service = ProfesionalService(session)  # ✅ instanciás la clase
+    service.crear_profesional(nuevo_profesional)  # ✅ usás el método de instancia
+
     return RedirectResponse("/profesionales", status_code=303)
 
 @router.put("/profesional/{idProfesional}", response_model=Profesional)
@@ -105,33 +87,45 @@ async def update_profesional(
     profesional_data: dict = Body(...),
     session: Session = Depends(get_session)
 ):
-    profesional = session.get(Profesional, idProfesional)
-    if not profesional:
-        return {"error": "Profesional no encontrado"}
-
+    
     # Helper para convertir campos vacíos a None
     def clean_int(value):
         return int(value) if isinstance(value, int) or (isinstance(value, str) and value.strip().isdigit()) else None
     
-    profesional.cuil_cuit = profesional_data["cuil_cuit"]
-    profesional.nombre = profesional_data["nombre"]
-    profesional.apellido = profesional_data["apellido"]
-    profesional.razonSocial = profesional_data.get("razonSocial")
-    profesional.calle = profesional_data.get("calle")
-    profesional.nroCalle = clean_int(profesional_data.get("nroCalle"))
-    profesional.nroDpto = profesional_data.get("nroDpto")
-    profesional.piso = profesional_data.get("piso")
-    profesional.areaCelular = clean_int(profesional_data.get("areaCelular"))
-    profesional.nroCelular = clean_int(profesional_data.get("nroCelular"))
-    profesional.matricula = profesional_data.get("matricula")
-    profesional.email = profesional_data.get("email")
-    profesional.idTipoProfesion = clean_int(profesional_data.get("idTipoProfesion"))
-    
-    session.add(profesional)
-    session.commit()
-    session.refresh(profesional)
-    
-    return profesional
+    profesional = Profesional(
+        idProfesional = idProfesional,
+        cuil_cuit = profesional_data["cuil_cuit"],
+        nombre = profesional_data["nombre"],
+        apellido = profesional_data["apellido"],
+        razonSocial = profesional_data.get("razonSocial"),
+        calle = profesional_data.get("calle"),
+        nroCalle = clean_int(profesional_data.get("nroCalle")),
+        nroDpto = profesional_data.get("nroDpto"),
+        piso = profesional_data.get("piso"),
+        areaCelular = clean_int(profesional_data.get("areaCelular")),
+        nroCelular = clean_int(profesional_data.get("nroCelular")),
+        matricula = profesional_data.get("matricula"),
+        email = profesional_data.get("email"),
+        idTipoProfesion = clean_int(profesional_data.get("idTipoProfesion"))
+    )
+
+    service = ProfesionalService(session)  # ✅ instanciás la clase
+    exito = service.actualizar_profesional(idProfesional,profesional)  # ✅ usás el método de instancia
+
+    if exito == "noExiste":
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"error": "Profesional no encontrado"}
+        )
+    elif exito == "cuilRepetido":
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
+            content={"error": "El Cuil/Cuit ingresado ya fue asignado a un Profesional. Verifique la información."}
+        )
+    else:
+        #return profesional
+        return exito
+        
 
 @router.delete("/profesional/{idProfesional}")
 async def delete_profesional(
@@ -146,3 +140,5 @@ async def delete_profesional(
     session.commit()
     
     return {"message": "Profesional eliminado exitosamente"}
+
+

@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Depends, Body, Form
 from typing import List
-from sqlmodel import Session, select
+from sqlmodel import Session
 from models.tipoProfesion import TipoProfesion
 from services.tipoProfesion_service import TipoProfesionService
-from fastapi.responses import RedirectResponse, HTMLResponse,JSONResponse
+from fastapi.responses import RedirectResponse,JSONResponse
 from fastapi import Request
 from config.conexion import get_session
-from config.conexion import session_dep 
 from fastapi.templating import Jinja2Templates
-from models.profesional import Profesional
+from fastapi import status
 
 router = APIRouter()
 
@@ -49,15 +48,20 @@ async def update_tipoProfesion(
     tipoProfesion_data: dict = Body(...),
     session: Session = Depends(get_session)
 ):
-    tipoProfesion = session.get(TipoProfesion, idTipoProfesion)
-    if not tipoProfesion:
-        return {"error": "Tipo de Profesion no encontrado"}
-    
-    tipoProfesion.nombre = tipoProfesion_data["nombre"]
-    tipoProfesion.descripcion = tipoProfesion_data.get("descripcion", "")
+    tipoProfesion = TipoProfesion(
+        idTipoProfesion = idTipoProfesion,
+        nombre = tipoProfesion_data["nombre"],
+        descripcion = tipoProfesion_data.get("descripcion", "")
+    )    
     
     service = TipoProfesionService(session)  # ✅ instanciás la clase
-    service.actualizar_tipoProfesion(tipoProfesion)  # ✅ usás el método de instancia
+    tipoProfesion=service.actualizar_tipoProfesion(tipoProfesion)  # ✅ usás el método de instancia
+    
+    if not tipoProfesion:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"error": "Tipo de Profesión no encontrado"}
+        )
     
     return tipoProfesion
 
@@ -69,14 +73,20 @@ async def delete_tipoProfesion(
 ):
     service = TipoProfesionService(session)
     exito = service.eliminar_tipoProfesion(idTipoProfesion)
-    print("❌ Tipo de Profesión en profesional: " + exito)
-    if exito  == "no existe":
-        print("❌ Tipo de Profesión en profesional: 1 " )
-        return {"error": "Tipo de Profesión no encontrado"}
+
+    if exito == "no existe":
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"error": "Tipo de Profesión no encontrado"}
+        )
     elif exito == "relacionado":
-        print("❌ Tipo de Profesión en profesional: 2 " )
-        return {"error": "No se puede eliminar el Tipo de Profesión porque está asignado a algún profesional"}
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
+            content={"error": "No se puede eliminar el Tipo de Profesión porque está asignado a algún profesional"}
+        )
     else:
-        print("❌ Tipo de Profesión en profesional: 3 " )
-        return {"message": "Tipo de Profesión eliminado exitosamente"}
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"message": "Tipo de Profesión eliminado exitosamente"}
+        )
    

@@ -14,35 +14,30 @@ class ProfesionalService:
     def listar_profesionales(self) -> List[Profesional]:
         return profesional_repo.get_all(self.session)  
 
-    def obtener_inspector_por_id(self, id: int) -> Optional[Profesional]:
+    def obtener_profesional_por_id(self, id: int) -> Optional[Profesional]:
         return profesional_repo.get_by_id(self.session, id)
 
-    def crear_inspector(self, nuevoInspector: Profesional) -> Profesional:
-        return profesional_repo.create(self.session, nuevoInspector)
+    def crear_profesional(self, nuevoProfesional: Profesional) -> Profesional:
+        return profesional_repo.create(self.session, nuevoProfesional)
     
     def actualizar_profesional(self, updateProfesional: Profesional) -> Optional[Profesional]:
+        
+        profesionales = profesional_repo.get_by_cuit(self.session,updateProfesional.idProfesional,updateProfesional.cuil_cuit)
+        
+        if profesionales is not None:
+            return "cuilRepetido"
+            #return HTMLResponse(content="""
+            #    <script>
+            #    alert("verifique el Cuil/Cuit. Ya existe un profesional registrado con ese CUIL.");
+            #    history.back();  // vuelve al formulario sin cerrar el modal
+            #    </script>
+            #""", status_code=200)
+
         profesional = profesional_repo.get_by_id(self.session, updateProfesional.idProfesional)
         if not profesional:
-            return None
-        profesional.nombre = updateProfesional.nombre
-        profesional.apellido = updateProfesional.apellido
-
-        profesional.cuil_cuit = updateProfesional.cuil_cuit
-        profesional.nombre = updateProfesional.nombre
-        profesional.apellido = updateProfesional.apellido
-        profesional.razonSocial = updateProfesional.razonSocial
-        profesional.calle = updateProfesional.calle
-        profesional.nroCalle = clean_int(updateProfesional.nroCalle)
-        profesional.nroDpto = updateProfesional.nroDpto
-        profesional.piso = updateProfesional.piso
-        profesional.areaCelular = clean_int(updateProfesional.areaCelular)
-        profesional.nroCelular = clean_int(updateProfesional.nroCelular)
-        profesional.matricula = updateProfesional.matricula
-        profesional.email = updateProfesional.email
-        profesional.idTipoProfesion = clean_int(updateProfesional.idTipoProfesion)
-
-
-        return profesional_repo.update(self.session, profesional)
+            return "noExiste"
+        
+        return profesional_repo.update(self.session, updateProfesional)
 
     def eliminar_profesional(self, id: int) -> bool:
         profesional = profesional_repo.get_by_id(self.session, id)

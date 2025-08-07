@@ -1,10 +1,8 @@
-from sqlalchemy.exc import IntegrityError
-from sqlmodel import Session, select
+from sqlmodel import Session
 from typing import List, Optional
 from models.tipoProfesion import TipoProfesion
 from models.profesional import Profesional
-from repositories import tipoProfesion_repo
-from fastapi import HTTPException
+from repositories import tipoProfesion_repo, profesional_repo
 
 class TipoProfesionService:
     def __init__(self, session: Session):
@@ -29,26 +27,14 @@ class TipoProfesionService:
 
     def eliminar_tipoProfesion(self, id: int) -> str:
         tipoProfesion = tipoProfesion_repo.get_by_id(self.session, id)
-        #if not tipoProfesion:
-        #   raise HTTPException(
-        #        status_code=404,
-        #        detail="Tipo de Profesión no encontrado."
-        #    )
         if not tipoProfesion:
-            print("❌ Tipo de Profesión no encontrado")
             return "no existe"  # No encontrado
 
-        # Validar que el tipo de profesion no este asignado algun profesional
-        profesionales = self.session.exec(
-                           select(Profesional).where(Profesional.idTipoProfesion == tipoProfesion.idTipoProfesion)
-                        ).first()
-    
+        profesionales = profesional_repo.get_by_idTipoProefesion(self.session, tipoProfesion.idTipoProfesion) 
+
         if profesionales is not None:
-            print("❌ Tipo de Profesión en profesional")
-            #return "No se puede eliminar el Tipo de Profesión porque está asignado a uno o más profesionales."
             return "relacionado"  #existen profesionales con el tipo de profesion
         else:
-            print("❌ Borrando tipo")
             tipoProfesion_repo.delete(self.session, tipoProfesion)
             return "exito"
        
