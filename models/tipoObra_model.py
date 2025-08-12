@@ -1,8 +1,8 @@
 from sqlmodel import SQLModel, Field
 
-class TipoExpediente(SQLModel, table=True):
-    __tablename__ = "TipoExpediente"
+class TipoObraModel(SQLModel, table=True):
+    __tablename__ = "TipoObra"
     
-    idTipoExpediente: int | None = Field(default=None, primary_key=True)
+    idTipoObra: int | None = Field(default=None, primary_key=True)
     nombre: str = Field(index=True, nullable=False)
     descripcion: str | None = Field(default=None, nullable=True)

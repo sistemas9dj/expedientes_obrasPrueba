@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Body, Form
 from typing import List
 from sqlmodel import Session, select
-from models.tipoExpediente import TipoExpediente
+from models.tipoExpediente_model import TipoExpedienteModel
 from services.tipoExpediente_service import TipoExpedienteService
 from fastapi.responses import RedirectResponse
 from fastapi import Request
@@ -12,7 +12,7 @@ router = APIRouter()
 
 templates = Jinja2Templates(directory="templates")
 
-@router.get("/tiposExpedientes", response_model=List[TipoExpediente])
+@router.get("/tiposExpedientes", response_model=List[TipoExpedienteModel])
 async def get_tiposExpedientes(request: Request, session: Session = Depends(get_session)):
 
     service = TipoExpedienteService(session)  # ✅ instanciás la clase
@@ -23,17 +23,17 @@ async def get_tiposExpedientes(request: Request, session: Session = Depends(get_
         "tiposExpedientes": tiposExpedientes
     })
 
-@router.get("/agregar_tipoExpediente", response_model=TipoExpediente)
+@router.get("/agregar_tipoExpediente", response_model=TipoExpedienteModel)
 async def agregar_tipoExpediente_get(request: Request, session: Session = Depends(get_session)):
     return templates.TemplateResponse("agregar_tipoExpediente.html",{"request":request})
                                       
-@router.post("/agregar_tipoExpediente", response_model=TipoExpediente)
+@router.post("/agregar_tipoExpediente", response_model=TipoExpedienteModel)
 async def agregar_tipoExpediente_post(
     nombre : str = Form(...),
     descripcion: str = Form(...),
     session: Session = Depends(get_session)
 ):
-    nuevo_tipoExpediente = TipoExpediente(
+    nuevo_tipoExpediente = TipoExpedienteModel(
         nombre=nombre,
         descripcion=descripcion)
     
@@ -41,13 +41,13 @@ async def agregar_tipoExpediente_post(
     service.crear_tipoExpediente(nuevo_tipoExpediente)
     return RedirectResponse("/tiposExpedientes", status_code=303)
 
-@router.put("/tipoExpediente/{idTipoExpediente}", response_model=TipoExpediente)
+@router.put("/tipoExpediente/{idTipoExpediente}", response_model=TipoExpedienteModel)
 async def update_tipoExpediente(
     idTipoExpediente: int,
     tipoExpediente_data: dict = Body(...),
     session: Session = Depends(get_session)
 ):
-    tipoExpediente = session.get(TipoExpediente, idTipoExpediente)
+    tipoExpediente = session.get(TipoExpedienteModel, idTipoExpediente)
     if not tipoExpediente:
         return {"error": "Tipo del Expediente no encontrado"}
     
@@ -69,6 +69,3 @@ async def delete_tipoExpediente(
     if not exito:
         return {"error": "Estado no encontrado"}
     return {"message": "Estado Expediente eliminado exitosamente"}
-
-
-

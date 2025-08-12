@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Field
 
-class Inspector(SQLModel, table=True):
+class InspectorModel(SQLModel, table=True):
     __tablename__ = "Inspector"
     
     idInspector: int | None = Field(default=None, primary_key=True)

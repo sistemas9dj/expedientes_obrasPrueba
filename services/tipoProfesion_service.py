@@ -1,23 +1,23 @@
 from sqlmodel import Session
 from typing import List, Optional
-from models.tipoProfesion import TipoProfesion
-from models.profesional import Profesional
+from models.tipoProfesion_model import TipoProfesionModel
+
 from repositories import tipoProfesion_repo, profesional_repo
 
 class TipoProfesionService:
     def __init__(self, session: Session):
         self.session = session
 
-    def listar_tipoProfesiones(self) -> List[TipoProfesion]:
+    def listar_tipoProfesiones(self) -> List[TipoProfesionModel]:
         return tipoProfesion_repo.get_all(self.session)  
 
-    def obtener_tipoProfesion_por_id(self, id: int) -> Optional[TipoProfesion]:
+    def obtener_tipoProfesion_por_id(self, id: int) -> Optional[TipoProfesionModel]:
         return tipoProfesion_repo.get_by_id(self.session, id)
 
-    def crear_tipoProfesion(self, nuevoTipoProfesion: TipoProfesion) -> TipoProfesion:
+    def crear_tipoProfesion(self, nuevoTipoProfesion: TipoProfesionModel) -> TipoProfesionModel:
         return tipoProfesion_repo.create(self.session, nuevoTipoProfesion)
 
-    def actualizar_tipoProfesion(self, updateTipoProfesion: TipoProfesion) -> Optional[TipoProfesion]:
+    def actualizar_tipoProfesion(self, updateTipoProfesion: TipoProfesionModel) -> Optional[TipoProfesionModel]:
         tipoProfesion = tipoProfesion_repo.get_by_id(self.session, updateTipoProfesion.idTipoProfesion)
         if not tipoProfesion:
             return None

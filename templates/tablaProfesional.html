@@ -55,7 +55,6 @@ desde js cargar por ajax los valores a mostrar en los modales segun el caso  -->
               <!--completo las filas de la tabla dinamicamente-->
               {% for valor in valores %}
               <tr>
-                  <!--estos botones hay que ver como se escriben -->
                   <td class="{{stylo}}"  width="10" >
                     <button type="button" class="btn" data-toggle="modal" data-target="#update_{{nomtabla}}"  data-id="{{ valor.id}}"  data-nombre="{{ valor.nombre  | e  }}" data-apellido="{{ valor.apellido  | e  }}" data-cuil="{{ valor.cuil_cuit  | e  }}" data-calle="{{ valor.calle  | e  }}" data-nrocalle="{{ valor.nroCalle  | e  }}" data-piso="{{ valor.piso  | e  }}" data-dpto="{{ valor.dpto  | e  }}" data-areacel="{{ valor.areaCelular  | e  }}" data-nrocel="{{ valor.nroCelular  | e  }}" data-matricula="{{ valor.matricula  | e  }}" data-razonsocial="{{ valor.razonSocial  | e  }}" data-idtipoprof="{{ valor.idTipoProfesion  | e  }}" data-mail="{{ valor.mail  | e  }}" title="Modificar {{nomtabla}}"><i class='icon-edit icono-pequeno' ></i></button>
                   </td>

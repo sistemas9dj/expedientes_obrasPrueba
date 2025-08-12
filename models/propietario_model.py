@@ -1,7 +1,7 @@
 from sqlmodel import SQLModel, Field
 from typing import Optional
 
-class Propietario(SQLModel, table=True):
+class PropietarioModel(SQLModel, table=True):
     __tablename__ = "Propietario"
     
     idPropietario: int | None = Field(default=None, primary_key=True)

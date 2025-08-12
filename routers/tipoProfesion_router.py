@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Body, Form
 from typing import List
 from sqlmodel import Session
-from models.tipoProfesion import TipoProfesion
+from models.tipoProfesion_model import TipoProfesionModel
 from services.tipoProfesion_service import TipoProfesionService
 from fastapi.responses import RedirectResponse,JSONResponse
 from fastapi import Request
@@ -13,7 +13,7 @@ router = APIRouter()
 
 templates = Jinja2Templates(directory="templates")
 
-@router.get("/tiposProfesiones", response_model=List[TipoProfesion])
+@router.get("/tiposProfesiones", response_model=List[TipoProfesionModel])
 async def get_tiposProfesiones(request: Request, session: Session = Depends(get_session)):
     service = TipoProfesionService(session)  # ✅ instanciás la clase
     tiposProfesiones = service.listar_tipoProfesiones()  # ✅ usás el método de instancia
@@ -23,17 +23,17 @@ async def get_tiposProfesiones(request: Request, session: Session = Depends(get_
         "tiposProfesiones": tiposProfesiones
     })
 
-@router.get("/agregar_tipoProfesion", response_model=TipoProfesion)
+@router.get("/agregar_tipoProfesion", response_model=TipoProfesionModel)
 async def agregar_tipoProfesion_get(request: Request, session: Session = Depends(get_session)):
     return templates.TemplateResponse("agregar_tipoProfesion.html",{"request":request})
                                       
-@router.post("/agregar_tipoProfesion", response_model=TipoProfesion)
+@router.post("/agregar_tipoProfesion", response_model=TipoProfesionModel)
 async def agregar_tipoProfesion_post(
     nombre : str = Form(...),
     descripcion: str = Form(...),
     session: Session = Depends(get_session)
 ):
-    nuevo_tipoProfesion = TipoProfesion(
+    nuevo_tipoProfesion = TipoProfesionModel(
         nombre=nombre,
         descripcion=descripcion)
     
@@ -42,13 +42,13 @@ async def agregar_tipoProfesion_post(
   
     return RedirectResponse("/tiposProfesiones", status_code=303)
 
-@router.put("/tipoProfesion/{idTipoProfesion}", response_model=TipoProfesion)
+@router.put("/tipoProfesion/{idTipoProfesion}", response_model=TipoProfesionModel)
 async def update_tipoProfesion(
     idTipoProfesion: int,
     tipoProfesion_data: dict = Body(...),
     session: Session = Depends(get_session)
 ):
-    tipoProfesion = TipoProfesion(
+    tipoProfesion = TipoProfesionModel(
         idTipoProfesion = idTipoProfesion,
         nombre = tipoProfesion_data["nombre"],
         descripcion = tipoProfesion_data.get("descripcion", "")

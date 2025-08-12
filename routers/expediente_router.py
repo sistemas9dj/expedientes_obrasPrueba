@@ -1,78 +1,57 @@
 from fastapi import APIRouter, Depends, Body, Form, Request
 from typing import List, Optional
 from sqlmodel import Session, select
-from sqlalchemy.orm import selectinload
+#from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import SQLAlchemyError
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import RedirectResponse
 from config.conexion import get_session
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
 
-from models.expediente import Expediente
-from models.tipoObra import TipoObra
-from models.profesional import Profesional
-from models.estadoExpediente import EstadoExpediente
-from models.expediente_estadoExpediente import Expediente_EstadoExpediente
 
+from models.expediente_model import ExpedienteModel
+from models.tipoObra_model import TipoObraModel
+from models.profesional_model import ProfesionalModel
+from models.estadoExpediente_model import EstadoExpedienteModel
+from models.expediente_estadoExpediente_model import Expediente_EstadoExpedienteModel
+
+from services.expediente_service import ExpedienteService
+from services.profesional_service import ProfesionalService
+from services.tipoObra_service import TipoObraService
+from services.estadoExpediente_service import EstadoExpedienteService
 
 router = APIRouter()
 
 templates = Jinja2Templates(directory="templates")
 
-@router.get("/expedientes", response_model=List[Expediente])
+@router.get("/expedientes", response_model=List[ExpedienteModel])
 async def get_expedientes(request: Request, session: Session = Depends(get_session)):
 
-    expedientes = session.exec(
-        select(Expediente)
-        .options(
-            selectinload(Expediente.tipoObra),
-            selectinload(Expediente.estados).selectinload(Expediente_EstadoExpediente.estado)
-        )
-        .order_by(Expediente.fechaIngresoSistema)
-        ).all()
-    
-    tiposObras = session.exec(
-        select(TipoObra).order_by(TipoObra.nombre)
-    ).all()
+    service = ExpedienteService(session)  # ✅ instanciás la clase
+    expedientes = service.listar_expedientes()  # ✅ usás el método de instancia
 
-    profesionales = session.exec(
-        select(Profesional).order_by(Profesional.apellido)
-    ).all()
+    service = TipoObraService(session)  # ✅ instanciás la clase
+    tipoObras = service.listar_tipoObras()  # ✅ usás el método de instancia
 
-    estadosExpedientes = session.exec(
-        select(EstadoExpediente).order_by(EstadoExpediente.nombre)
-    ).all()
+    service = ProfesionalService(session)  # ✅ instanciás la clase
+    profesionales = service.listar_profesionales()  # ✅ usás el método de instancia
 
-    # Extraer el último estado por expediente
-    expedientes_con_estado = []
-    for exp in expedientes:
-        if exp.estados:
-            ultimo_estado_obj = sorted(exp.estados, key=lambda e: e.fechaCambioEstado)[-1].estado
-            ultimo_estado_id = ultimo_estado_obj.idEstadoExpediente
-            ultimo_estado_nombre = ultimo_estado_obj.nombre
-        else:
-            ultimo_estado_id = None
-            ultimo_estado_nombre = "Sin estado"
-        
-        expedientes_con_estado.append({
-            "expediente": exp,
-            "ultimo_estado_id": ultimo_estado_id,
-            "ultimo_estado_nombre": ultimo_estado_nombre
-        })
-     
+    service = EstadoExpedienteService(session)  # ✅ instanciás la clase
+    estadosExpedientes = service.listar_estados()  # ✅ usás el método de instancia
+
     return templates.TemplateResponse("listar_expedientes.html", { 
         "request": request,
-        "expedientes": expedientes_con_estado,
-        "tiposObras": tiposObras,
+        "expedientes": expedientes,
+        "tiposObras": tipoObras,
         "profesionales": profesionales,
         "estadosExpedientes": estadosExpedientes
     })
 
-@router.get("/agregar_expediente", response_model=Expediente)
+@router.get("/agregar_expediente", response_model=ExpedienteModel)
 async def agregar_expediente_get(request: Request, session: Session = Depends(get_session)):
      return templates.TemplateResponse("agregar_expediente.html",{"request":request})
                                       
-@router.post("/agregar_expediente", response_model=Expediente)
+@router.post("/agregar_expediente", response_model=ExpedienteModel)
 async def agregar_expediente_post(
     # request: Request,
     anioMesaEntrada : int = Form(...),
@@ -84,15 +63,16 @@ async def agregar_expediente_post(
     
     session: Session = Depends(get_session)
     ):
-    try:
+        service = ExpedienteService(session)  # ✅ instanciás la clase
         #armar nro de entrada....debe ser consecutivos por año. 
-        nroEntrada = 1
+      #  nroEntrada = 1
         anioMesaEntrada = int(anioMesaEntrada) if anioMesaEntrada else None
+        nroEntrada = service.obtener_proximo_nro_entrada(anioMesaEntrada)
 
-        fechaIngresoSistema = datetime.now()
+        #fechaIngresoSistema = datetime.now()
         fechaUltimaMod = datetime.now()
     
-        nuevo_expediente = Expediente(
+        nuevo_expediente = ExpedienteModel(
             nroEntrada=nroEntrada,
             anioMesaEntrada=anioMesaEntrada,
             nroExpedienteMesaEntrada=nroExpedienteMesaEntrada,
@@ -100,35 +80,23 @@ async def agregar_expediente_post(
             sucesion=sucesion,
             observaciones=observaciones,
             idTipoObra=idTipoObra,
-            fechaIngresoSistema=fechaIngresoSistema,
+        #    fechaIngresoSistema=fechaIngresoSistema,
             fechaUltimaMod=fechaUltimaMod  
         )
         
-        session.add(nuevo_expediente)
-        session.flush()  # OBTENÉS el id sin hacer commit
-   
-        # Registrar el estado inicial en la tabla intermedia
-        nuevo_estado = Expediente_EstadoExpediente(
-                idExpediente=nuevo_expediente.idExpediente,
-                idEstadoExpediente=8, # estado incial por defecto 
-                fechaCambioEstado= datetime.now()
-            )
-
-        session.add(nuevo_estado)
-        session.commit()
-
+       
+        service.crear_expediente(nuevo_expediente)  # ✅ usás el método de instancia
+        
         return RedirectResponse("/expedientes", status_code=303)
-    except SQLAlchemyError as e:
-        session.rollback()
-        raise Exception(f"Error al insertar expediente y estado: {e}")
+   
 
-@router.put("/expediente/{idExpediente}", response_model=Expediente)
+@router.put("/expediente/{idExpediente}", response_model=ExpedienteModel)
 async def update_expediente(
     idExpediente: int,
     expediente_data: dict = Body(...),
     session: Session = Depends(get_session)
 ):
-    expediente = session.get(Expediente, idExpediente)
+    expediente = session.get(ExpedienteModel, idExpediente)
     if not expediente:
         return {"error": "Expediente no encontrado"}
 
@@ -147,24 +115,13 @@ async def update_expediente(
     expediente.observaciones = clean_int(expediente_data.get("observaciones"))   
 
     #Agregar Nuevo estado si es que cambio
-    idEstadoExpediente = clean_int(expediente_data.get("idEstadoExpedienteNuevo"))
-    idEstadoExpedienteActual = clean_int(expediente_data.get("idEstadoExpedienteActual"))
+    idEstadoExpediente = clean_int(expediente_data.get("idEstadoExpNuevo"))
+    idEstadoExpedienteActual = clean_int(expediente_data.get("idEstadoExpActual"))
 
-    print(f"Estado Nuevo: {idEstadoExpediente}")
-    print(f"Estado Actual: {idEstadoExpedienteActual}")
-
-    if idEstadoExpediente is not None and idEstadoExpediente != idEstadoExpedienteActual:
-        nuevo_estado_relacion = Expediente_EstadoExpediente(
-        idExpediente=expediente.idExpediente,
-        idEstadoExpediente=idEstadoExpediente,
-        fechaCambioEstado=datetime.now()
-    )
-        session.add(nuevo_estado_relacion)
-   
-
-    session.add(expediente)
-    session.commit()
-    session.refresh(expediente)
+    idEstadoExpedienteNuevo = idEstadoExpediente if idEstadoExpediente is not None and idEstadoExpediente != idEstadoExpedienteActual else None
+    
+    service = ExpedienteService(session)  # ✅ instanciás la clase
+    service.actualizar_expediente(expediente, idEstadoExpedienteNuevo)
     
     return expediente
 
@@ -174,11 +131,11 @@ async def delete_expediente(
     idExpediente: int,
     session: Session = Depends(get_session)
 ):
-    expediente = session.get(Expediente, idExpediente)
-    if not expediente:
+    service = ExpedienteService(session)  # ✅ instanciás la clase
+    exito = service.eliminar_expediente(idExpediente)
+    if not exito:
         return {"error": "Expediente no encontrado"}
-    
-    session.delete(expediente)
-    session.commit()
-    
+      
     return {"message": "Expediente eliminado exitosamente"}
+
+

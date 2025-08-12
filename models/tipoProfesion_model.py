@@ -1,7 +1,7 @@
 from typing import List
 from sqlmodel import SQLModel, Field
 
-class TipoProfesion(SQLModel, table=True):
+class TipoProfesionModel(SQLModel, table=True):
     __tablename__ = "TipoProfesion"
     
     idTipoProfesion: int | None = Field(default=None, primary_key=True)

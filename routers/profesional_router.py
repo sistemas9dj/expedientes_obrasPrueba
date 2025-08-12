@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Body, Form
 from typing import List, Optional
 from sqlmodel import Session, select
 
-from models.profesional import Profesional
+from models.profesional_model import ProfesionalModel
 from services.profesional_service import ProfesionalService
 from services.tipoProfesion_service import TipoProfesionService
 
@@ -17,7 +17,7 @@ router = APIRouter()
 
 templates = Jinja2Templates(directory="templates")
 
-@router.get("/profesionales", response_model=List[Profesional])
+@router.get("/profesionales", response_model=List[ProfesionalModel])
 async def get_profesionales(request: Request, session: Session = Depends(get_session)):
 
     service = ProfesionalService(session)  # ✅ instanciás la clase
@@ -32,11 +32,11 @@ async def get_profesionales(request: Request, session: Session = Depends(get_ses
         "tiposProfesiones": tiposProfesiones
     })
 
-@router.get("/agregar_profesional", response_model=Profesional)
+@router.get("/agregar_profesional", response_model=ProfesionalModel)
 async def agregar_profesional_get(request: Request, session: Session = Depends(get_session)):
     return templates.TemplateResponse("agregar_profesional.html",{"request":request})
                                       
-@router.post("/agregar_profesional", response_model=Profesional)
+@router.post("/agregar_profesional", response_model=ProfesionalModel)
 async def agregar_profesional_post(
     
    # request: Request,
@@ -60,7 +60,7 @@ async def agregar_profesional_post(
     area_celular_int = int(areaCelular) if areaCelular else None
     nro_celular_int = int(nroCelular) if nroCelular else None
 
-    nuevo_profesional = Profesional(
+    nuevo_profesional = ProfesionalModel(
         cuil_cuit = cuil_cuit,
         nombre  = nombre,
         apellido = apellido,
@@ -81,18 +81,20 @@ async def agregar_profesional_post(
 
     return RedirectResponse("/profesionales", status_code=303)
 
-@router.put("/profesional/{idProfesional}", response_model=Profesional)
+@router.put("/profesional/{idProfesional}", response_model=ProfesionalModel)
 async def update_profesional(
     idProfesional: int,
     profesional_data: dict = Body(...),
     session: Session = Depends(get_session)
 ):
     
+    print("id: " +  str(idProfesional))
+
     # Helper para convertir campos vacíos a None
     def clean_int(value):
         return int(value) if isinstance(value, int) or (isinstance(value, str) and value.strip().isdigit()) else None
     
-    profesional = Profesional(
+    profesional = ProfesionalModel(
         idProfesional = idProfesional,
         cuil_cuit = profesional_data["cuil_cuit"],
         nombre = profesional_data["nombre"],
@@ -110,7 +112,7 @@ async def update_profesional(
     )
 
     service = ProfesionalService(session)  # ✅ instanciás la clase
-    exito = service.actualizar_profesional(idProfesional,profesional)  # ✅ usás el método de instancia
+    exito = service.actualizar_profesional(profesional)  # ✅ usás el método de instancia
 
     if exito == "noExiste":
         return JSONResponse(
@@ -123,7 +125,6 @@ async def update_profesional(
             content={"error": "El Cuil/Cuit ingresado ya fue asignado a un Profesional. Verifique la información."}
         )
     else:
-        #return profesional
         return exito
         
 
@@ -132,7 +133,7 @@ async def delete_profesional(
     idProfesional: int,
     session: Session = Depends(get_session)
 ):
-    profesional = session.get(Profesional, idProfesional)
+    profesional = session.get(ProfesionalModel, idProfesional)
     if not profesional:
         return {"error": "Profesional no encontrado"}
     

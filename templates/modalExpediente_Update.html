@@ -128,6 +128,8 @@
 
     try {
     alert("nroPartida: " + nroPartida);
+    alert("estadoNuevo: " + idEstadoExpedienteNuevo);
+    alert("estadoActual: " + idEstadoExpedienteActual);
         const response = await fetch(`/expediente/${id}`, {
             method: 'PUT',
             headers: {

@@ -1,22 +1,22 @@
 from sqlmodel import Session
 from typing import List, Optional
-from models.estadoInspeccion import EstadoInspeccion
+from models.estadoInspeccion_model import EstadoInspeccionModel
 from repositories import estadoInspeccion_repo
 
 class EstadoInspeccionService:
     def __init__(self, session: Session):
         self.session = session
 
-    def listar_estados(self) -> List[EstadoInspeccion]:
+    def listar_estados(self) -> List[EstadoInspeccionModel]:
         return estadoInspeccion_repo.get_all(self.session)  
 
-    def obtener__estado_por_id(self, id: int) -> Optional[EstadoInspeccion]:
+    def obtener__estado_por_id(self, id: int) -> Optional[EstadoInspeccionModel]:
         return estadoInspeccion_repo.get_by_id(self.session, id)
 
-    def crear_estado(self, nuevoEstado: EstadoInspeccion) -> EstadoInspeccion:
+    def crear_estado(self, nuevoEstado: EstadoInspeccionModel) -> EstadoInspeccionModel:
         return estadoInspeccion_repo.create(self.session, nuevoEstado)
 
-    def actualizar_estado(self, updateEstado: EstadoInspeccion) -> Optional[EstadoInspeccion]:
+    def actualizar_estado(self, updateEstado: EstadoInspeccionModel) -> Optional[EstadoInspeccionModel]:
         estado = estadoInspeccion_repo.get_by_id(self.session, updateEstado.idEstadoInspeccion)
         if not estado:
             return None

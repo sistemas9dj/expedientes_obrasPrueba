@@ -29,7 +29,6 @@ app.include_router(tipoProfesionRouter, prefix="", tags=["tiposProfesiones"])
 app.include_router(profesionalRouter, prefix="", tags=["profesionales"])
 app.include_router(expedienteRouter, prefix="", tags=["expedientes"])
 
-
 @app.get("/", response_class=HTMLResponse)
 async def get_estadosExpedientes(request: Request):
     return templates.TemplateResponse("layouts/layout.html", {"request": request})

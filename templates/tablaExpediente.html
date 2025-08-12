@@ -60,7 +60,7 @@ desde js cargar por ajax los valores a mostrar en los modales segun el caso  -->
                     <button type="button" class="btn" data-toggle="modal" data-target="#update_{{nomtabla}}"  data-id="{{ valor.id}}"  data-nroexpediente="{{ valor.nroExpediente }}" data-idtipoobra="{{ valor.idTipoObra }}" data-nropartida="{{ valor.nroPartida }}" data-nroexpedientemesaentr="{{ valor.nroExpedienteMesaEntrada }}" data-aniomesaentr="{{ valor.anioMesaEntrada }}" data-sucesion="{{ valor.sucesion }}" data-observaciones="{{ valor.observaciones }}" data-idestadoexpediente="{{ valor.idEstadoExpediente }}" title="Modificar {{nomtabla}}"><i class='icon-edit icono-pequeno' ></i></button>
                   </td>
                   <td class="{{stylo}}"  width="10" >
-                    <button type="button" class="btn" data-toggle="modal" data-target="#delete_{{nomtabla}}" data-id="{{ valor.id }}"   title="Borrar {{nomtabla}}"><i class='icon-trash icono-pequeno'></i></button>
+                    <button type="button" class="btn" data-toggle="modal" data-target="#delete_{{nomtabla}}" data-id="{{ valor.id }}"  data-nroexpediente="{{ valor.nroExpediente | e  }}" title="Borrar {{nomtabla}}"><i class='icon-trash icono-pequeno'></i></button>
                   </td>
                   {%for clave, dato in valor.items() %}
                     

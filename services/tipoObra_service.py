@@ -1,22 +1,22 @@
 from sqlmodel import Session
 from typing import List, Optional
-from models.tipoObra import TipoObra
+from models.tipoObra_model import TipoObraModel
 from repositories import tipoObra_repo
 
 class TipoObraService:
     def __init__(self, session: Session):
         self.session = session
 
-    def listar_tipoObras(self) -> List[TipoObra]:
+    def listar_tipoObras(self) -> List[TipoObraModel]:
         return tipoObra_repo.get_all(self.session)  
 
-    def obtener_tipoExpediente_por_id(self, id: int) -> Optional[TipoObra]:
+    def obtener_tipoExpediente_por_id(self, id: int) -> Optional[TipoObraModel]:
         return tipoObra_repo.get_by_id(self.session, id)
 
-    def crear_tipoExpediente(self, nuevoTipoObra: TipoObra) -> TipoObra:
+    def crear_tipoExpediente(self, nuevoTipoObra: TipoObraModel) -> TipoObraModel:
         return tipoObra_repo.create(self.session, nuevoTipoObra)
 
-    def actualizar_tipoObra(self, updateTipoObra: TipoObra) -> Optional[TipoObra]:
+    def actualizar_tipoObra(self, updateTipoObra: TipoObraModel) -> Optional[TipoObraModel]:
         tipoObra = tipoObra_repo.get_by_id(self.session, updateTipoObra.idTipoObra)
         if not tipoObra:
             return None

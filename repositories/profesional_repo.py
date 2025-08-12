@@ -1,35 +1,37 @@
 from sqlmodel import Session, select
-from models.profesional import Profesional
+from models.profesional_model import ProfesionalModel
 from typing import List, Optional
 from sqlalchemy.orm import selectinload
+from datetime import datetime
 
-def get_all(session: Session) -> List[Profesional]:
-    return session.exec(select(Profesional)
-                                .options(selectinload(Profesional.tipoProfesion))  # ✅ esta es la relación
-                                .order_by(Profesional.apellido)).all()
+def get_all(session: Session) -> List[ProfesionalModel]:
+    return session.exec(select(ProfesionalModel)
+                                .options(selectinload(ProfesionalModel.tipoProfesion))  # ✅ esta es la relación
+                                .order_by(ProfesionalModel.apellido)).all()
 
-def get_by_id(session: Session, id: int) -> Optional[Profesional]:
-    return session.get(Profesional, id)
+def get_by_id(session: Session, id: int) -> Optional[ProfesionalModel]:
+    return session.get(ProfesionalModel, id)
 
-def create(session: Session, profesional: Profesional) -> Profesional:
+def create(session: Session, profesional: ProfesionalModel) -> ProfesionalModel:
     session.add(profesional)
     session.commit()
     session.refresh(profesional)
     return profesional
 
-def update(session: Session, profesional: Profesional) -> Profesional:
+def update(session: Session, profesional: ProfesionalModel) -> ProfesionalModel:
     session.add(profesional)
     session.commit()
     session.refresh(profesional)
     return profesional
 
-def delete(session: Session, profesional: Profesional):
+def delete(session: Session, profesional: ProfesionalModel):
     session.delete(profesional)
     session.commit()
 
-def get_by_idTipoProefesion(session: Session, id: int) ->  Profesional:
-    return session.exec(select(Profesional).where(Profesional.idTipoProfesion == id)).first()
+def get_by_idTipoProfesion(session: Session, id: int) ->  ProfesionalModel:
+    return session.exec(select(ProfesionalModel).where(ProfesionalModel.idTipoProfesion == id)).first()
 
-def get_by_cuit(session: Session, id:int, cuil: int) -> List[Profesional]:
-    return session.exec(select(Profesional).where(Profesional.idProfesional != id and Profesional.cuil_cuit == cuil)).all()
-                                
+def get_by_cuit(session: Session, id:int, cuil: str) -> List[ProfesionalModel]:
+    return session.exec(select(ProfesionalModel).where(ProfesionalModel.idProfesional != id, ProfesionalModel.cuil_cuit == cuil)).all()
+
+                               

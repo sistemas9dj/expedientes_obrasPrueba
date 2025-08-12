@@ -2,12 +2,12 @@ from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, DateTime, func
 from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime
-from models.tipoObra import TipoObra
+from models.tipoObra_model import TipoObraModel
 
 if TYPE_CHECKING:
-    from models.expediente_estadoExpediente import Expediente_EstadoExpediente
+    from models.expediente_estadoExpediente_model import Expediente_EstadoExpedienteModel
 
-class Expediente(SQLModel, table=True):
+class ExpedienteModel(SQLModel, table=True):
     __tablename__ = "Expediente"
     
     idExpediente: int | None = Field(default=None, primary_key=True)
@@ -24,15 +24,15 @@ class Expediente(SQLModel, table=True):
         sa_column=Column(DateTime, server_default=func.now())
     )
     fechaUltimaMod: datetime = Field(
-        sa_column=Column(DateTime, server_default=func.now())
+        sa_column=Column(DateTime, server_default=func.now(), onupdate=func.now())
     )
    
     idTipoObra: int | None = Field(default=None, foreign_key="TipoObra.idTipoObra")
 
     # Relación con TipoObra 1 a n
-    tipoObra: Optional[TipoObra] = Relationship()
+    tipoObra: Optional[TipoObraModel] = Relationship()
 
     # Relación N a N
-    estados: List["Expediente_EstadoExpediente"] = Relationship(back_populates="expediente")
+    estados: List["Expediente_EstadoExpedienteModel"] = Relationship(back_populates="expediente")
 
    

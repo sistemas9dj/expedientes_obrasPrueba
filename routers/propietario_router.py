@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Body, Form
 from typing import List, Optional
 from sqlmodel import Session, select
-from models.propietario import Propietario
+from models.propietario_model import PropietarioModel
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi import Request
 from config.conexion import get_session
@@ -11,9 +11,10 @@ router = APIRouter()
 
 templates = Jinja2Templates(directory="templates")
 
-@router.get("/propietarios", response_model=List[Propietario])
+@router.get("/propietarios", response_model=List[PropietarioModel])
 async def get_propietarios(request: Request, session: Session = Depends(get_session)):
-    propietarios = session.exec(select(Propietario).order_by(Propietario.apellido)).all()
+    propietarios = session.exec(select(PropietarioModel).order_by(PropietarioModel.apellido)).all()
+   
    
     return templates.TemplateResponse("listar_propietarios.html", { 
         "request": request,
@@ -21,11 +22,11 @@ async def get_propietarios(request: Request, session: Session = Depends(get_sess
     })
   
 
-@router.get("/agregar_propietario", response_model=Propietario)
+@router.get("/agregar_propietario", response_model=PropietarioModel)
 async def agregar_propietario_get(request: Request, session: Session = Depends(get_session)):
     return templates.TemplateResponse("agregar_propietario.html",{"request":request})
                                       
-@router.post("/agregar_propietario", response_model=Propietario)
+@router.post("/agregar_propietario", response_model=PropietarioModel)
 async def agregar_propietario_post(
     
     request: Request,
@@ -45,7 +46,7 @@ async def agregar_propietario_post(
     
     # Validar CUIL duplicado
     propietario_existente = session.exec(
-        select(Propietario).where(Propietario.cuil_cuit == cuil_cuit)
+        select(PropietarioModel).where(PropietarioModel.cuil_cuit == cuil_cuit)
     ).first()
     
     if propietario_existente:
@@ -60,7 +61,7 @@ async def agregar_propietario_post(
     area_celular_int = int(areaCelular) if areaCelular else None
     nro_celular_int = int(nroCelular) if nroCelular else None
 
-    nuevo_propietario = Propietario(
+    nuevo_propietario = PropietarioModel(
         cuil_cuit = cuil_cuit,
         nombre  = nombre,
         apellido = apellido,
@@ -78,13 +79,13 @@ async def agregar_propietario_post(
     session.refresh(nuevo_propietario)
     return RedirectResponse("/propietarios", status_code=303)
 
-@router.put("/propietario/{idPropietario}", response_model=Propietario)
+@router.put("/propietario/{idPropietario}", response_model=PropietarioModel)
 async def update_propietario(
     idPropietario: int,
     propietario_data: dict = Body(...),
     session: Session = Depends(get_session)
 ):
-    propietario = session.get(Propietario, idPropietario)
+    propietario = session.get(PropietarioModel, idPropietario)
     if not propietario:
         return {"error": "Propietario no encontrado"}
 
@@ -114,7 +115,7 @@ async def delete_propietario(
     idPropietario: int,
     session: Session = Depends(get_session)
 ):
-    propietario = session.get(Propietario, idPropietario)
+    propietario = session.get(PropietarioModel, idPropietario)
     if not propietario:
         return {"error": "Propietario no encontrado"}
     

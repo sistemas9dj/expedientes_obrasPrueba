@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Body, Form
 from typing import List
 from sqlmodel import Session, select
-from models.inspector import Inspector
+from models.inspector_model import InspectorModel
 from services.inspector_service import InspectorService
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi import Request
@@ -13,7 +13,7 @@ router = APIRouter()
 
 templates = Jinja2Templates(directory="templates")
 
-@router.get("/inspectores", response_model=List[Inspector])
+@router.get("/inspectores", response_model=List[InspectorModel])
 async def get_inspectores(request: Request, session: Session = Depends(get_session)):
     service = InspectorService(session)  # ✅ instanciás la clase
     inspectores = service.listar_inspectores()  # ✅ usás el método de instancia
@@ -23,7 +23,7 @@ async def get_inspectores(request: Request, session: Session = Depends(get_sessi
         "inspectores": inspectores
     })
 
-@router.get("/agregar_inspector", response_model=Inspector)
+@router.get("/agregar_inspector", response_model=InspectorModel)
 async def agregar_inspector_get(nombre: str = Form(...), apellido: str = Form(...), session: Session = Depends(get_session)):
 
     service = InspectorService(session)  # ✅ instanciás la clase
@@ -31,13 +31,13 @@ async def agregar_inspector_get(nombre: str = Form(...), apellido: str = Form(..
 
     return RedirectResponse("/inspectores", status_code=303)
                                       
-@router.post("/agregar_inspector", response_model=Inspector)
+@router.post("/agregar_inspector", response_model=InspectorModel)
 async def agregar_inspector_post(
     nombre : str = Form(...),
     apellido: str = Form(...),
     session: Session = Depends(get_session)
 ):
-    nuevo_inspector = Inspector(
+    nuevo_inspector = InspectorModel(
         nombre=nombre,
         apellido=apellido)
     
@@ -46,13 +46,13 @@ async def agregar_inspector_post(
     
     return RedirectResponse("/inspectores", status_code=303)
 
-@router.put("/inspector/{idInspector}", response_model=Inspector)
+@router.put("/inspector/{idInspector}", response_model=InspectorModel)
 async def update_inspector(
     idInspector: int,
     inspector_data: dict = Body(...),
     session: Session = Depends(get_session)
 ):
-    inspector = session.get(Inspector, idInspector)
+    inspector = session.get(InspectorModel, idInspector)
     if not inspector:
         return {"error": "Inspector no encontrado"}
     

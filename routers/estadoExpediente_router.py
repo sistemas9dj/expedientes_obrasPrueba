@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Form, Body, Request
 from typing import List
 from sqlmodel import Session
-from models.estadoExpediente import EstadoExpediente
+from models.estadoExpediente_model import EstadoExpedienteModel
 from services.estadoExpediente_service import EstadoExpedienteService
 from fastapi.responses import RedirectResponse
 from config.conexion import get_session
@@ -11,7 +11,7 @@ router = APIRouter()
 
 templates = Jinja2Templates(directory="templates")
 
-@router.get("/estadosExpedientes", response_model=List[EstadoExpediente])
+@router.get("/estadosExpedientes", response_model=List[EstadoExpedienteModel])
 async def get_estadoExpedientes(request: Request, session: Session = Depends(get_session)):
 
     service = EstadoExpedienteService(session)  # ✅ instanciás la clase
@@ -21,19 +21,19 @@ async def get_estadoExpedientes(request: Request, session: Session = Depends(get
         "estadosExpedientes": estados
     })
 
-@router.get("/agregar_estadoExpediente", response_model=EstadoExpediente)
+@router.get("/agregar_estadoExpediente", response_model=EstadoExpedienteModel)
 async def agregar(nombre: str = Form(...), descripcion: str = Form(...), session: Session = Depends(get_session)):
     service = EstadoExpedienteService(session)
     service.crear_estado(nombre, descripcion)
     return RedirectResponse("/estadosExpedientes", status_code=303)
                                       
-@router.post("/agregar_estadoExpediente", response_model=EstadoExpediente)
+@router.post("/agregar_estadoExpediente", response_model=EstadoExpedienteModel)
 async def agregar_estadoExpediente_post(
     nombre : str = Form(...),
     descripcion: str = Form(...),
     session: Session = Depends(get_session)
 ):
-    nuevo_estadoExpediente = EstadoExpediente(
+    nuevo_estadoExpediente = EstadoExpedienteModel(
         nombre=nombre,
         descripcion=descripcion)
     
@@ -42,17 +42,17 @@ async def agregar_estadoExpediente_post(
     return RedirectResponse("/estadosExpedientes", status_code=303)
    
 
-@router.put("/estadoExpediente/{idEstadoExpediente}", response_model=EstadoExpediente)
+@router.put("/estadoExpediente/{idEstadoExpediente}", response_model=EstadoExpedienteModel)
 async def update_estadoExpediente(
     idEstadoExpediente: int,
     estadoExpediente_data: dict = Body(...),
     session: Session = Depends(get_session)
 ):
-    estadoExpediente = session.get(EstadoExpediente, idEstadoExpediente)
+    estadoExpediente = session.get(EstadoExpedienteModel, idEstadoExpediente)
     if not estadoExpediente:
         return {"error": "Estado del Expediente no encontrado"}
     
-    update_estado = EstadoExpediente(
+    update_estado = EstadoExpedienteModel(
         idEstadoExpediente = idEstadoExpediente,
         nombre = estadoExpediente_data["nombre"],
         descripcion = estadoExpediente_data.get("descripcion", "")

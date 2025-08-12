@@ -1,22 +1,22 @@
 from sqlmodel import Session
 from typing import List, Optional
-from models.inspector import Inspector
+from models.inspector_model import InspectorModel
 from repositories import inspector_repo
 
 class InspectorService:
     def __init__(self, session: Session):
         self.session = session
 
-    def listar_inspectores(self) -> List[Inspector]:
+    def listar_inspectores(self) -> List[InspectorModel]:
         return inspector_repo.get_all(self.session)  
 
-    def obtener_inspector_por_id(self, id: int) -> Optional[Inspector]:
+    def obtener_inspector_por_id(self, id: int) -> Optional[InspectorModel]:
         return inspector_repo.get_by_id(self.session, id)
 
-    def crear_inspector(self, nuevoInspector: Inspector) -> Inspector:
+    def crear_inspector(self, nuevoInspector: InspectorModel) -> InspectorModel:
         return inspector_repo.create(self.session, nuevoInspector)
 
-    def actualizar_inspector(self, updateInspector: Inspector) -> Optional[Inspector]:
+    def actualizar_inspector(self, updateInspector: InspectorModel) -> Optional[InspectorModel]:
         inspector = inspector_repo.get_by_id(self.session, updateInspector.idInspector)
         if not inspector:
             return None

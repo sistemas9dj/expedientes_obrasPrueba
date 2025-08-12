@@ -7,10 +7,10 @@ from typing import Optional, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from models.expediente import Expediente
-    from models.estadoExpediente import EstadoExpediente
+    from models.expediente_model import ExpedienteModel
+    from models.estadoExpediente_model import EstadoExpedienteModel
 
-class Expediente_EstadoExpediente(SQLModel, table=True):
+class Expediente_EstadoExpedienteModel(SQLModel, table=True):
     __tablename__ = "Expediente_EstadoExpediente"
     
     idExpediente: int = Field(foreign_key="Expediente.idExpediente", primary_key=True)
@@ -22,7 +22,7 @@ class Expediente_EstadoExpediente(SQLModel, table=True):
 
     # Relaciones con back_populates. Relacion N a N
     # Forward references (clases referenciadas como string)
-    expediente: Optional["Expediente"] = Relationship(back_populates="estados")
-    estado: Optional["EstadoExpediente"] = Relationship(back_populates="expedientes")
+    expediente: Optional["ExpedienteModel"] = Relationship(back_populates="estados")
+    estado: Optional["EstadoExpedienteModel"] = Relationship(back_populates="expedientes")
     
    

@@ -1,8 +1,8 @@
 from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional
-from models.tipoProfesion import TipoProfesion
+from models.tipoProfesion_model import TipoProfesionModel
 
-class Profesional(SQLModel, table=True):
+class ProfesionalModel(SQLModel, table=True):
     __tablename__ = "Profesional"
     
     idProfesional: int | None = Field(default=None, primary_key=True)
@@ -22,5 +22,5 @@ class Profesional(SQLModel, table=True):
     idTipoProfesion: int | None = Field(default=None, foreign_key="TipoProfesion.idTipoProfesion")
 
     # Relación con TipoProfesion
-    tipoProfesion: Optional[TipoProfesion] = Relationship()
+    tipoProfesion: Optional[TipoProfesionModel] = Relationship()
    
