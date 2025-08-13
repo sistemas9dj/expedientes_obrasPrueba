@@ -13,6 +13,11 @@ from routers.expediente_router import router as expedienteRouter
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 
+# ----------------------
+# IMPORTAR MODELOS (REGISTRA RELACIONES)
+# ----------------------
+import models  # ⚡ Importante: registra todos los modelos antes de crear tablas
+
 app = FastAPI()
 
 # Montar la carpeta "static"

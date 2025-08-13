@@ -11,6 +11,7 @@ class EstadoExpedienteModel(SQLModel, table=True):
     nombre: str = Field(index=True, nullable=False)
     descripcion: str | None = Field(default=None, nullable=True)
 
+    #relacion N a N
     expedientes: List["Expediente_EstadoExpedienteModel"] = Relationship(back_populates="estado")
 
   

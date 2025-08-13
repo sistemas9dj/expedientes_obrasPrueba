@@ -122,6 +122,8 @@ async def update_expediente(
     
     service = ExpedienteService(session)  # ✅ instanciás la clase
     service.actualizar_expediente(expediente, idEstadoExpedienteNuevo)
+
+    #Agregar Propietarios
     
     return expediente
 
