@@ -8,8 +8,6 @@ if TYPE_CHECKING:
     from models.expediente_propietario_model import Expediente_PropietarioModel
     from models.expediente_estadoExpediente_model import Expediente_EstadoExpedienteModel
 
-
-
 class ExpedienteModel(SQLModel, table=True):
     __tablename__ = "Expediente"
     

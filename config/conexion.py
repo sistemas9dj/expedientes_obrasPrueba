@@ -19,6 +19,7 @@ DB_NAME = os.getenv("DB_NAME")
 url = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 engine = create_engine(url, echo=True, pool_pre_ping = True, pool_recycle=280)  # Agregué `echo=True` para depuración
 
+
 # Dependencia de sesión
 def get_session():
     with Session(engine) as session:

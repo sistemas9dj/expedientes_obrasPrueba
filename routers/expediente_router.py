@@ -124,7 +124,38 @@ async def update_expediente(
     service.actualizar_expediente(expediente, idEstadoExpedienteNuevo)
 
     #Agregar Propietarios
+    idFilasPropietario = clean_int(expediente_data.get("idFila"))
+
+    for i in range(1, idFilasPropietario):  
+        valor = expediente_data.get(f"prop{i}", "").strip()  # prop1, prop2, etc.
+        #de la forma  valor= cuil_cuit + "/" + apellido + "/" + nombre + "/" + figuraPpal + "/" + calle + "/" + nroCalle + "/" +piso+ "/" +dpto+ "/" +areaCelular+ "/" +nroCelular+ "/" +email;
+         
+
+    if valor:
+        # Extraer curso y el resto después de la primera "/"
+        pos = valor.find("/")
+        if pos != -1:
+            cuil = valor[:pos]
+            resto = valor[pos + 1:]
+
+            # Extraer idArea hasta la próxima "/"
+            pos2 = resto.find("/")
+            if pos2 != -1:
+                apellido = resto[:pos2]
+                resto = valor[pos2 + 2:]
+            else:
+                apellido = resto  # si no hay más "/"
+
+                        # Extraer idArea hasta la próxima "/"
+            pos3 = resto.find("/")
+            if pos3 != -1:
+                nombre = resto[:pos3]
+                resto = valor[pos3 + 3:]
+            else:
+                nombre = resto  # si no hay más "/"
     
+            sql_insert_PostulanteCurso(idPostulante, curso, idArea)
+
     return expediente
 
 
