@@ -6,9 +6,9 @@ from datetime import datetime
 from typing import Optional, TYPE_CHECKING
 
 
-if TYPE_CHECKING:
-   from models.expediente_model import ExpedienteModel
-   from models.propietario_model import PropietarioModel
+#if TYPE_CHECKING:
+#   from models.expediente_model import ExpedienteModel
+#   from models.propietario_model import PropietarioModel
 
 class Expediente_PropietarioModel(SQLModel, table=True):
     __tablename__ = "Expediente_Propietario"
@@ -19,6 +19,8 @@ class Expediente_PropietarioModel(SQLModel, table=True):
     fechaCambioPropietario: datetime = Field(
         sa_column=Column(DateTime, server_default=func.now())
     )
+
+
 
     # Relaciones con back_populates. Relacion N a N
     # Forward references (clases referenciadas como string)

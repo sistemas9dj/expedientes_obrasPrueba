@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel, Field, Relationship
-from typing import List, TYPE_CHECKING
+#from typing import List, TYPE_CHECKING
 
 #if TYPE_CHECKING:
 #    from models.expediente_model import ExpedienteModel

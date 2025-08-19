@@ -4,8 +4,8 @@ from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime
 from models.tipoObra_model import TipoObraModel
 
-#if TYPE_CHECKING:
-#    from models.expediente_estadoExpediente_model import Expediente_EstadoExpedienteModel
+if TYPE_CHECKING:
+     from models.expediente_estadoExpediente_model import Expediente_EstadoExpedienteModel
 #    from models.expediente_propietario_model import Expediente_PropietarioModel
      
 class ExpedienteModel(SQLModel, table=True):
