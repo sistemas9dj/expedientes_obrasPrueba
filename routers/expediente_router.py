@@ -7,6 +7,7 @@ from fastapi.responses import RedirectResponse
 from config.conexion import get_session
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
+import json
 
 
 from models.expediente_model import ExpedienteModel
@@ -14,6 +15,7 @@ from models.tipoObra_model import TipoObraModel
 from models.profesional_model import ProfesionalModel
 from models.estadoExpediente_model import EstadoExpedienteModel
 from models.expediente_estadoExpediente_model import Expediente_EstadoExpedienteModel
+from models.propietario_model import PropietarioModel
 
 from services.expediente_service import ExpedienteService
 from services.profesional_service import ProfesionalService
@@ -53,14 +55,15 @@ async def agregar_expediente_get(request: Request, session: Session = Depends(ge
                                       
 @router.post("/agregar_expediente", response_model=ExpedienteModel)
 async def agregar_expediente_post(
-    # request: Request,
+    request: Request,
     anioMesaEntrada : int = Form(...),
     nroExpedienteMesaEntrada: str = Form(...),
     nroPartida : str = Form(...),
     sucesion : int = Form(...),
     observaciones : str = Form(...),
     idTipoObra : int = Form(...),
-    
+    idFila: int = Form(...),  # cantPropietarios
+
     session: Session = Depends(get_session)
     ):
         service = ExpedienteService(session)  # ✅ instanciás la clase
@@ -71,6 +74,30 @@ async def agregar_expediente_post(
 
         #fechaIngresoSistema = datetime.now()
         fechaUltimaMod = datetime.now()
+
+         # Procesar propietarios
+        valoresPropietarios = []
+        for i in range(1, idFila + 1):  # recorre prop1...propN
+            valor = (await request.form()).get(f"prop{i}", "").strip()
+            # valor esperado: "cuil/apellido/nombre/figuraPpal/calle/nroCalle/piso/dpto/areaCel/nroCel/email"
+
+            if valor:
+                partes = valor.split("/")
+                if len(partes) >= 11:
+                    propietario = PropietarioModel(
+                        cuil_cuit = partes[0],
+                        apellido = partes[1],
+                        nombre = partes[2],
+                        figuraPpal = partes[3],
+                        calle = partes[4],
+                        nroCalle = partes[5],
+                        piso = partes[6],
+                        dpto = partes[7],
+                        areaCelular = partes[8],
+                        nroCelular = partes[9],
+                        email = partes[10]
+                    )
+                    valoresPropietarios.append(propietario)
     
         nuevo_expediente = ExpedienteModel(
             nroEntrada=nroEntrada,
@@ -83,9 +110,8 @@ async def agregar_expediente_post(
         #    fechaIngresoSistema=fechaIngresoSistema,
             fechaUltimaMod=fechaUltimaMod  
         )
-        
-       
-        service.crear_expediente(nuevo_expediente)  # ✅ usás el método de instancia
+                        
+        service.crear_expediente(nuevo_expediente, valoresPropietarios)  # ✅ usás el método de instancia
         
         return RedirectResponse("/expedientes", status_code=303)
    
@@ -154,7 +180,7 @@ async def update_expediente(
             else:
                 nombre = resto  # si no hay más "/"
     
-            sql_insert_PostulanteCurso(idPostulante, curso, idArea)
+            #sql_insert_PostulanteCurso(idPostulante, curso, idArea)
 
     return expediente
 

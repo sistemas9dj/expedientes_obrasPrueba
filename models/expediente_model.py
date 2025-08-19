@@ -4,10 +4,10 @@ from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime
 from models.tipoObra_model import TipoObraModel
 
-if TYPE_CHECKING:
-    from models.expediente_propietario_model import Expediente_PropietarioModel
-    from models.expediente_estadoExpediente_model import Expediente_EstadoExpedienteModel
-
+#if TYPE_CHECKING:
+#    from models.expediente_estadoExpediente_model import Expediente_EstadoExpedienteModel
+#    from models.expediente_propietario_model import Expediente_PropietarioModel
+     
 class ExpedienteModel(SQLModel, table=True):
     __tablename__ = "Expediente"
     
@@ -36,7 +36,7 @@ class ExpedienteModel(SQLModel, table=True):
     # Relación N a N (tabla intermedia Expediente_EstadoExpediente)
     estados: List["Expediente_EstadoExpedienteModel"] = Relationship(back_populates="expediente")
     # Relación N a N (tabla intermedia Expediente_Propietario)
-    propietarios: List["Expediente_PropietarioModel"] = Relationship(back_populates="expediente")
-
+    #propietarios: List["Expediente_PropietarioModel"] = Relationship(back_populates="expediente")
+     
 # Resolver forward references
 #ExpedienteModel.update_forward_refs()   

@@ -153,6 +153,7 @@
 
                                             <!--Carga dinámica de la tabla por javaScript-->
                                                 <input type="hidden" id="idFila" name="idFila" value="1" />
+                                                <input type="hidden" name="propietarios" id="propietarios" value="[]">
                                                 <div class="row"  align="center">
                                                     <div class="form-group col-md-12"  >
                                                         <button type="button" class="boton_1" onclick="insertarPropietario()" title="Agregar Propietario"  ><i class='glyphicon glyphicon-plus'></i> Agregar Propietario</button>
@@ -239,7 +240,7 @@
          if(nroCelular == ''){alert("El Nro. del Celular es de ingreso obligatorio."); exit;}
          if(email == ''){alert("El Email es de ingreso obligatorio."); exit;}
         
-        //De la forma valor= fecha + "/" + cantidad + "/" + idUnidad + "/" + retiro;
+        //De la forma valor= cuil + "/" + apellido + "/" + nombre + "/" + figuraPPal ......;
          valor= cuil_cuit + "/" + apellido + "/" + nombre + "/" + figuraPpal + "/" + calle + "/" + nroCalle + "/" +piso+ "/" +dpto+ "/" +areaCelular+ "/" +nroCelular+ "/" +email;
          
          style = "dr";
@@ -262,6 +263,87 @@
         document.getElementById(idFila).remove();
        // document.getElementById("contFila").value = document.getElementById("contFila").value -1;
       }
+
+
+/*let listaPropietarios = []; // variable global o fuera de la función
+
+function insertarPropietario(){
+
+    alert ("entre!!!");
+    let nombre = document.getElementById("nombre").value;
+    let apellido = document.getElementById("apellido").value;
+    let cuil_cuit = document.getElementById("cuil_cuit").value;
+    let figuraPpal = document.getElementById("figuraPpal").value;
+    let calle = document.getElementById("calle").value;
+    let nroCalle = document.getElementById("nroCalle").value;
+    let piso = document.getElementById("piso").value;
+    let dpto = document.getElementById("nroDpto").value;
+    let areaCelular = document.getElementById("areaCelular").value;
+    let nroCelular = document.getElementById("nroCelular").value;
+    let email = document.getElementById("email").value;
+
+    alert ("entre!!!");
+    // Validaciones
+    if(!nombre || !apellido || !cuil_cuit || !areaCelular || !nroCelular || !email){
+        alert("Complete todos los campos obligatorios del propietario");
+        return; // Interrumpe la función
+    }
+ alert ("entre 333333!!!");
+    // Crear objeto
+    let propietario = {
+        nombre: nombre,
+        apellido: apellido,
+        cuil: cuil_cuit,
+        figuraPpal: figuraPpal,
+        calle: calle,
+        nroCalle: nroCalle,
+        piso: piso,
+        dpto: dpto,
+        areaCelular: areaCelular,
+        nroCelular: nroCelular,
+        email: email
+    };
+    alert ("Antes del push");
+    alert("listaPropietarios: " + JSON.stringify(listaPropietarios));
+    alert ("entre 44444!!!");
+    listaPropietarios.push(propietario);
+
+    alert ("entre 555555!!!");
+    // Actualizar input hidden como JSON
+    document.getElementById("propietarios").value = JSON.stringify(listaPropietarios);
+
+    alert ("Arme propietario");
+    alert ("Arme propietario:" + listaPropietarios.length);
+
+    // Agregar fila a la tabla visible
+    let idFila = listaPropietarios.length;
+    let ppal = figuraPpal == "1" ? "SI" : "NO";
+    let fila = `<tr id="fila${idFila}">
+        <td>${apellido}</td>
+        <td>${nombre}</td>
+        <td>${cuil_cuit}</td>
+        <td>${ppal}</td>
+        <td><button type="button" onclick="deletePropietario(${idFila})">Borrar</button></td>
+    </tr>`;
+    document.getElementById("tablaPropietarios").insertAdjacentHTML('beforeend', fila);
+
+    // Limpiar campos del formulario
+    document.getElementById("nombre").value = "";
+    document.getElementById("apellido").value = "";
+    document.getElementById("cuil_cuit").value = "";
+    // ... resto de campos
+}
+
+function deletePropietario(idFila){
+    // Quitar del array
+    listaPropietarios.splice(idFila - 1, 1);
+    // Quitar de la tabla
+    document.getElementById(`fila${idFila}`).remove();
+    // Actualizar JSON
+    document.getElementById("propietarios").value = JSON.stringify(listaPropietarios);
+}
+*/
+
 
       function insertarProfesionales(){
         idFila=document.getElementById("idFilaProf").value;

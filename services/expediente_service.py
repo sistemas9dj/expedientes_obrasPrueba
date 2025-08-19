@@ -43,11 +43,13 @@ class ExpedienteService:
     def obtener_expediente_por_id(self, id: int) -> Optional[ExpedienteModel]:
         return expediente_repo.get_by_id(self.session, id)
 
-    def crear_expediente(self, nuevoExpediente: ExpedienteModel) -> ExpedienteModel:
-        return expediente_repo.create(self.session, nuevoExpediente)
-    
+    def crear_expediente(self, nuevoExpediente: ExpedienteModel, propietarios_data: list[dict]) -> ExpedienteModel:
+        # Crear el expediente 
+        #return expediente_repo.create(nuevoExpediente, propietarios_data ) 
+        return expediente_repo.create_expediente_con_propietarios(self.session,nuevoExpediente, propietarios_data) 
+       
     def actualizar_expediente(self, updateExpediente: ExpedienteModel, idEstadoExpediente:int) -> Optional[ExpedienteModel]:
-
+ 
         expediente = expediente_repo.get_by_id(self.session, updateExpediente.idExpediente)
         if not expediente:
             print ("error:" + "noExiste" )

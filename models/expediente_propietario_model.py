@@ -7,8 +7,8 @@ from typing import Optional, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from models.expediente_model import ExpedienteModel
-    from models.propietario_model import PropietarioModel
+   from models.expediente_model import ExpedienteModel
+   from models.propietario_model import PropietarioModel
 
 class Expediente_PropietarioModel(SQLModel, table=True):
     __tablename__ = "Expediente_Propietario"
@@ -22,8 +22,10 @@ class Expediente_PropietarioModel(SQLModel, table=True):
 
     # Relaciones con back_populates. Relacion N a N
     # Forward references (clases referenciadas como string)
-    expediente: Optional["ExpedienteModel"] = Relationship(back_populates="propietarios")
-    propietario: Optional["PropietarioModel"] = Relationship(back_populates="expedientes")
+#    expediente: Optional["ExpedienteModel"] = Relationship(back_populates="propietario")
+#    propietario: Optional["PropietarioModel"] = Relationship(back_populates="expediente")
     
 # Resolver forward references
 #Expediente_PropietarioModel.update_forward_refs()   
+
+
