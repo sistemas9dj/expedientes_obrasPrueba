@@ -27,6 +27,32 @@ def get_all(session: Session) -> List[ExpedienteModel]:
 def get_by_id(session: Session, id: int) -> Optional[ExpedienteModel]:
     return session.get(ExpedienteModel , id)
 
+def get_propietarios(session: Session, idExpediente: int):
+        #expediente = session.exec(select(Expediente_PropietarioModel)
+        #                          .filter(Expediente_PropietarioModel.idExpediente == idExpediente)
+        #                          ).all()
+        #if expediente:
+        #    return expediente.propietarios
+        #return []
+
+        # 1) Buscar relaciones en la tabla intermedia
+        relaciones = session.exec(
+            select(Expediente_PropietarioModel).where(Expediente_PropietarioModel.idExpediente == idExpediente)
+        ).all()
+
+        if not relaciones:
+            return []
+
+        # 2) Extraer los ids de propietarios
+        ids_propietarios = [rel.idPropietario for rel in relaciones]
+
+        # 3) Buscar propietarios con esos IDs
+        propietarios = session.exec(
+            select(PropietarioModel).where(PropietarioModel.idPropietario.in_(ids_propietarios))
+        ).all()
+
+        return propietarios
+
 def create(session: Session, expediente : ExpedienteModel, propietarios : list[dict]) -> ExpedienteModel :
     #Crea un expediente sin propietarios y son profesionales
     session.add(expediente)

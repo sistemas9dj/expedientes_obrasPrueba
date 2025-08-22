@@ -43,6 +43,10 @@ class ExpedienteService:
     def obtener_expediente_por_id(self, id: int) -> Optional[ExpedienteModel]:
         return expediente_repo.get_by_id(self.session, id)
 
+    #Obtener propietarios del Expedeinte. relacion N a N
+    def get_propietarios(self, idExpediente: int):
+        return expediente_repo.get_propietarios(idExpediente)
+
     def crear_expediente(self, nuevoExpediente: ExpedienteModel, propietarios_data: list[dict]) -> Optional[ExpedienteModel]:
         #Validar que no exista un propietario con el Cuil ingresado
         for p in propietarios_data:

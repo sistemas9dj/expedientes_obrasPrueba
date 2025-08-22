@@ -68,69 +68,18 @@ $(document).ready(function () {
      
     });
 
-   // Cuando se abre el modal Update Expediente
-$('#update_Expediente').on('show.bs.modal', async function (event) {
-    let button = $(event.relatedTarget);
-    let idExpediente = button.data('id');  // el botón que abre el modal debe tener data-id
+     // MODAL Update EstadoExpediente - Muestra los datos del Estado del Expediente
+    $('#update_EstadoExpediente').on('show.bs.modal', function (event) {
+        let button = $(event.relatedTarget);
+        let id = button.data('id');
+        let nombre = button.data('nombre');
+        let descripcion = button.data('descripcion');
 
-    let modal = $(this);
-    modal.find('#IDEXPEDIENTEEditHIDDEN').val(idExpediente);
-
-    // 🔹 1) Limpio tabla antes de cargar
-    let tabla = document.getElementById("tablaPropietariosEdit");
-    tabla.innerHTML = `
-        <tr>          
-            <td class="hr" width="10" align="left"></td>
-            <td class="hr" width="10" align="left"></td>
-            <td class="hr" width="50" align="left"><strong>CUIL/CUIT</strong></td>
-            <td class="hr" width="50" align="left"><strong>APELLIDO</strong></td>
-            <td class="hr" width="50" align="left"><strong>NOMBRE</strong></td>
-            <td class="hr" width="50" align="left"><strong>PPAL.</strong></td>
-        </tr>
-    `;
-
-    // 🔹 2) Llamo al backend para traer propietarios del expediente
-    try {
-        const resp = await fetch(`/expediente/${idExpediente}/propietarios`);
-        if (!resp.ok) throw new Error("Error al cargar propietarios");
-
-        const propietarios = await resp.json();
-
-        // 🔹 3) Renderizo cada propietario en la tabla
-        propietarios.forEach((p, idx) => {
-            let style = (idx % 2 === 0) ? "dr" : "sr";
-            let ppal = p.figuraPpal ? "SI" : "NO";
-
-            let fila = `
-                <td class='${style}' width='2'>
-                    <input type='hidden' name='prop${idx}' id='prop${idx}' 
-                        value='${p.cuil_cuit}/${p.apellido}/${p.nombre}/${p.figuraPpal}/${p.calle}/${p.nroCalle}/${p.piso}/${p.dpto}/${p.areaCelular}/${p.nroCelular}/${p.email}'>
-                </td>
-                <td class='${style}' width='10'>
-                    <button type='button' class='btn' onClick='deletePropietarioEdit(${idx})' title='Borrar Propietario'>
-                        <i class='icon-trash'></i>
-                    </button>
-                </td>
-                <td class='${style}' width='50' align='left'>${p.apellido}</td>
-                <td class='${style}' width='50' align='left'>${p.nombre}</td>
-                <td class='${style}' width='50' align='left'>${p.cuil_cuit}</td>
-                <td class='${style}' width='50' align='left'>${ppal}</td>
-            `;
-
-            let row = document.createElement("TR");
-            row.id = idx;
-            row.innerHTML = fila;
-            tabla.appendChild(row);
-        });
-
-        // Actualizo el contador de filas
-        document.getElementById("idFilaEdit").value = propietarios.length + 1;
-
-    } catch (err) {
-        console.error("Error cargando propietarios: ", err);
-        alert("No se pudieron cargar los propietarios");
-    }
-});
+        let modal = $(this);
+        modal.find('#IDESTADOEXPEDIENTEEditHIDDEN').val(id);
+        modal.find('#NOMBREEdit').val(nombre);
+        modal.find('#DESCRIPCIONEdit').val(descripcion);
+    });
 
     // MODAL ELIMINAR EstadoExpediente - Muestra los datos del Estado del Expediente
     $('#delete_EstadoExpediente').on('show.bs.modal', function (event) {
