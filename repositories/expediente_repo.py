@@ -28,7 +28,7 @@ def get_by_id(session: Session, id: int) -> Optional[ExpedienteModel]:
     return session.get(ExpedienteModel , id)
 
 def create(session: Session, expediente : ExpedienteModel, propietarios : list[dict]) -> ExpedienteModel :
-    
+    #Crea un expediente sin propietarios y son profesionales
     session.add(expediente)
     session.flush()  # OBTENÉS el id sin hacer commit
 
@@ -45,7 +45,7 @@ def create(session: Session, expediente : ExpedienteModel, propietarios : list[d
     return expediente 
 
 def create_expediente_con_propietarios(session: Session, expediente : ExpedienteModel, propietarios : list[dict]) -> ExpedienteModel :
-    
+    #Crea un expedeinte completo, es decir, agrega las relaciones con estadoExpedeinte, propietariosExpedientes y ProfesionalesExpedientes
     session.add(expediente)
     session.commit()
     session.refresh(expediente)
@@ -60,28 +60,49 @@ def create_expediente_con_propietarios(session: Session, expediente : Expediente
 
     #Crear propietarios y asociarlos a la tabla expediente_propietario
     for p in propietarios:
-        # Buscar si ya existe un propietario con ese CUIL
-        existing_propietario = session.exec(select(PropietarioModel).where(PropietarioModel.cuil_cuit == p.cuil_cuit)).first()
-        
-        if not existing_propietario:
-            #Registrar Propietario
-            session.add(p)
+        # Buscar si ya existe un propietario con ese CUIL. sI EXISTE SOLO SE ACTUALIZAN LOS DATOS. A ESTA ALTURA SE VERIFICO QUE EL APELLIDO COINCIDE.
+        cuil = p.cuil_cuit
+        existing_propietario = session.exec(select(PropietarioModel).where(PropietarioModel.cuil_cuit == cuil)).first()
+
+        if existing_propietario is None:
+            #Registrar nuevo Propietario
+            nuevo_propietario = PropietarioModel(
+                cuil_cuit=p.cuil_cuit,
+                nombre=p.nombre,
+                apellido=p.apellido,
+                calle=p.calle,
+                nroCalle=p.nroCalle,
+                piso=p.piso,
+                nroDpto=p.nroDpto,
+                areaCelular=p.areaCelular,
+                nroCelular=p.nroCelular,
+                email=p.email,
+                figuraPpal=p.figuraPpal
+            )
+            session.add(nuevo_propietario)
             session.commit()
-            session.refresh(p)
+            session.refresh(nuevo_propietario)
+            prop_id = nuevo_propietario.idPropietario
         else: 
-            # Actualizar datos del propietario existente
+           # Actualizar propietario existente
             existing_propietario.nombre = p.nombre
-            existing_propietario.apellido = p.apellido
-            existing_propietario.domicilio = p.domicilio
-             # ... asignar los demás campos que quieras actualizar
-            session.add(existing_propietario)  # opcional en SQLModel
+            existing_propietario.calle = p.calle
+            existing_propietario.nroCalle = p.nroCalle
+            existing_propietario.piso = p.piso
+            existing_propietario.nroDpto = p.nroDpto
+            existing_propietario.areaCelular = p.areaCelular 
+            existing_propietario.nroCelular = p.nroCelular 
+            existing_propietario.email = p.email
+            existing_propietario.figuraPpal = p.figuraPpal
+  
             session.commit()
-            session.refresh(p)       
+            session.refresh(existing_propietario)
+            prop_id = existing_propietario.idPropietario       
             
         #Registar la relacion Expedeinte_Propietario
         nuevo_ExpProp = Expediente_PropietarioModel(
             idExpediente=expediente.idExpediente,
-            idPropietario=p.idPropietario, # estado incial por defecto 
+            idPropietario=prop_id,
             fechaCambioPropietario= datetime.now()
         )
     
@@ -89,9 +110,7 @@ def create_expediente_con_propietarios(session: Session, expediente : Expediente
         session.add(nuevo_ExpProp)
                 
     session.commit()
-        
-   # session.refresh(expediente)
-    return expediente 
+    return "exito" 
 
 def update(session: Session, expediente : ExpedienteModel, idEstadoExpediente:int) -> ExpedienteModel:
     session.add(expediente )

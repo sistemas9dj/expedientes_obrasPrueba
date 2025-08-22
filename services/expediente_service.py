@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from models.expediente_model import ExpedienteModel
 
-from repositories import expediente_repo
+from repositories import expediente_repo, propietario_repo
 
 class ExpedienteService:
     # Helper para convertir campos vacíos a None
@@ -43,17 +43,20 @@ class ExpedienteService:
     def obtener_expediente_por_id(self, id: int) -> Optional[ExpedienteModel]:
         return expediente_repo.get_by_id(self.session, id)
 
-    def crear_expediente(self, nuevoExpediente: ExpedienteModel, propietarios_data: list[dict]) -> ExpedienteModel:
-        # Crear el expediente 
-        #return expediente_repo.create(nuevoExpediente, propietarios_data ) 
+    def crear_expediente(self, nuevoExpediente: ExpedienteModel, propietarios_data: list[dict]) -> Optional[ExpedienteModel]:
+        #Validar que no exista un propietario con el Cuil ingresado
+        for p in propietarios_data:
+            propietario = propietario_repo.get_by_cuit(self.session, p.apellido, p.cuil_cuit)
+            if propietario:
+                return "duplicado/" +  p.cuil_cuit 
+        
         return expediente_repo.create_expediente_con_propietarios(self.session,nuevoExpediente, propietarios_data) 
        
     def actualizar_expediente(self, updateExpediente: ExpedienteModel, idEstadoExpediente:int) -> Optional[ExpedienteModel]:
  
         expediente = expediente_repo.get_by_id(self.session, updateExpediente.idExpediente)
         if not expediente:
-            print ("error:" + "noExiste" )
-            return "noExiste"
+          return "noExiste"
         
         # Actualizar campos manualmente
         expediente.idTipoObra = updateExpediente.idTipoObra
@@ -63,7 +66,8 @@ class ExpedienteService:
         expediente.sucesion = updateExpediente.sucesion
         expediente.observaciones = updateExpediente.observaciones
 
-        return expediente_repo.update(self.session, expediente, idEstadoExpediente)        
+        #return expediente_repo.update(self.session, expediente, idEstadoExpediente)        
+        return {"message": "Expediente agregado exitosamente"}
             
     def eliminar_expediente(self, id: int) -> bool:
         expediente = expediente_repo.get_by_id(self.session, id)

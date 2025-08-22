@@ -30,7 +30,7 @@ class TipoProfesionService:
         if not tipoProfesion:
             return "no existe"  # No encontrado
 
-        profesionales = profesional_repo.get_by_idTipoProefesion(self.session, tipoProfesion.idTipoProfesion) 
+        profesionales = profesional_repo.get_by_idTipoProfesion(self.session, tipoProfesion.idTipoProfesion) 
 
         if profesionales is not None:
             return "relacionado"  #existen profesionales con el tipo de profesion

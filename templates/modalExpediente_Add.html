@@ -12,7 +12,7 @@
                 <div id="content-wrapper" class="d-flex flex-column">
                     <!-- Main Content -->
                     <div id="content">
-                        <form action="/agregar_expediente" method="post">
+                        <form id="formExpediente" action="/agregar_expediente" method="post" > <!--</form>action="/agregar_expediente" method="post"> -->
         	                <div id="accordion">
 <!--Bloque Expediente-->
                                 <div class="card shadow mb-4">
@@ -177,8 +177,6 @@
                                     </fieldset>    
                                 </div>
                             </div>    
-
-
                             
                             <div class="modal-footer">
                                 <button type="button" class="cancela btn btn-default" data-dismiss="modal">Cerrar</button>
@@ -208,12 +206,11 @@
     });
 
     // Establecer el año actual como valor por defecto y límite máximo
-    const inputAnio = document.getElementById("anioIngresoMesaEntrada");
+    const inputAnio = document.getElementById("anioMesaEntrada");
     const anioActual = new Date().getFullYear();
     inputAnio.max = anioActual;
     inputAnio.value = anioActual;
-    document.getElementById("anioIngresoMesaEntrada").value = anioActual;
-
+    document.getElementById("anioMesaEntrada").value = anioActual;
 
     function insertarPropietario(){
          idFila=document.getElementById("idFila").value;
@@ -236,7 +233,7 @@
          if(nombre == ''){alert("El Nombre del Propietario es de ingreso obligatorio."); exit;}
          if(apellido == ''){alert("El Apellido del Propietario es de inghreso obligatorio."); exit;}
          if(cuil_cuit == ''){alert("La CUIL/CUIT del Propietario es de ingreso obligatorio."); exit;}
-         if(areaCelular == ''){alert("El Area del Celualr es de ingreso obligatorio."); exit;}
+         if(areaCelular == ''){alert("El Area del Celular es de ingreso obligatorio."); exit;}
          if(nroCelular == ''){alert("El Nro. del Celular es de ingreso obligatorio."); exit;}
          if(email == ''){alert("El Email es de ingreso obligatorio."); exit;}
         
@@ -257,95 +254,15 @@
 
        //  document.getElementById("contFila").value = `${idFila}`; 
          document.getElementById("idFila").value = `${++idFila}`;       
-      }
+    }
 
-      function deletePropietario(idFila){
+    function deletePropietario(idFila){
         document.getElementById(idFila).remove();
        // document.getElementById("contFila").value = document.getElementById("contFila").value -1;
-      }
-
-
-/*let listaPropietarios = []; // variable global o fuera de la función
-
-function insertarPropietario(){
-
-    alert ("entre!!!");
-    let nombre = document.getElementById("nombre").value;
-    let apellido = document.getElementById("apellido").value;
-    let cuil_cuit = document.getElementById("cuil_cuit").value;
-    let figuraPpal = document.getElementById("figuraPpal").value;
-    let calle = document.getElementById("calle").value;
-    let nroCalle = document.getElementById("nroCalle").value;
-    let piso = document.getElementById("piso").value;
-    let dpto = document.getElementById("nroDpto").value;
-    let areaCelular = document.getElementById("areaCelular").value;
-    let nroCelular = document.getElementById("nroCelular").value;
-    let email = document.getElementById("email").value;
-
-    alert ("entre!!!");
-    // Validaciones
-    if(!nombre || !apellido || !cuil_cuit || !areaCelular || !nroCelular || !email){
-        alert("Complete todos los campos obligatorios del propietario");
-        return; // Interrumpe la función
     }
- alert ("entre 333333!!!");
-    // Crear objeto
-    let propietario = {
-        nombre: nombre,
-        apellido: apellido,
-        cuil: cuil_cuit,
-        figuraPpal: figuraPpal,
-        calle: calle,
-        nroCalle: nroCalle,
-        piso: piso,
-        dpto: dpto,
-        areaCelular: areaCelular,
-        nroCelular: nroCelular,
-        email: email
-    };
-    alert ("Antes del push");
-    alert("listaPropietarios: " + JSON.stringify(listaPropietarios));
-    alert ("entre 44444!!!");
-    listaPropietarios.push(propietario);
-
-    alert ("entre 555555!!!");
-    // Actualizar input hidden como JSON
-    document.getElementById("propietarios").value = JSON.stringify(listaPropietarios);
-
-    alert ("Arme propietario");
-    alert ("Arme propietario:" + listaPropietarios.length);
-
-    // Agregar fila a la tabla visible
-    let idFila = listaPropietarios.length;
-    let ppal = figuraPpal == "1" ? "SI" : "NO";
-    let fila = `<tr id="fila${idFila}">
-        <td>${apellido}</td>
-        <td>${nombre}</td>
-        <td>${cuil_cuit}</td>
-        <td>${ppal}</td>
-        <td><button type="button" onclick="deletePropietario(${idFila})">Borrar</button></td>
-    </tr>`;
-    document.getElementById("tablaPropietarios").insertAdjacentHTML('beforeend', fila);
-
-    // Limpiar campos del formulario
-    document.getElementById("nombre").value = "";
-    document.getElementById("apellido").value = "";
-    document.getElementById("cuil_cuit").value = "";
-    // ... resto de campos
-}
-
-function deletePropietario(idFila){
-    // Quitar del array
-    listaPropietarios.splice(idFila - 1, 1);
-    // Quitar de la tabla
-    document.getElementById(`fila${idFila}`).remove();
-    // Actualizar JSON
-    document.getElementById("propietarios").value = JSON.stringify(listaPropietarios);
-}
-*/
 
 
-      function insertarProfesionales(){
+    function insertarProfesionales(){
         idFila=document.getElementById("idFilaProf").value;
 
         //Leo Profesional de la forma idprofesiona*Apellido,nombre/ Matticula
@@ -376,11 +293,35 @@ function deletePropietario(idFila){
 
         //document.getElementById("contFila").value = `${idFila}`; 
         document.getElementById("idFilaProf").value = `${++idFila}`;       
-      }
+    }
 
-      function deleteProfesional(idFila){
+    function deleteProfesional(idFila){
         document.getElementById(idFila).remove();
-       // document.getElementById("contFila").value = document.getElementById("contFila").value -1;
-      }
+      // document.getElementById("contFila").value = document.getElementById("contFila").value -1;
+    }
+
+    document.getElementById('formExpediente').addEventListener('submit', async function(e) {
+        e.preventDefault(); // Evita que el formulario haga un POST tradicional
+
+        const form = e.target;
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch("/agregar_expediente", {
+                method: "POST",
+                body: formData
+            });       
+            
+            if (response.ok) {
+                $('#add_Expediente').modal('hide');
+                location.reload(); // recarga tabla con datos actualizados
+            } else {
+                const error = await response.json();
+                alert('Error al agregar el Expediente: ' + (error.error || 'Error desconocido'));
+            }
+        } catch (err) {
+            alert('Error de red o del servidor: ' + err.message);
+        }
+});
 		
 </script>

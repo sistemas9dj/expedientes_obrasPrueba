@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Depends, Body, Form, Request
 from typing import List, Optional
 from sqlmodel import Session, select
-#from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import SQLAlchemyError
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse,JSONResponse
 from config.conexion import get_session
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
-import json
 
+from fastapi import status
 
 from models.expediente_model import ExpedienteModel
 from models.tipoObra_model import TipoObraModel
@@ -66,16 +65,16 @@ async def agregar_expediente_post(
 
     session: Session = Depends(get_session)
     ):
+  
         service = ExpedienteService(session)  # ✅ instanciás la clase
-        #armar nro de entrada....debe ser consecutivos por año. 
-      #  nroEntrada = 1
         anioMesaEntrada = int(anioMesaEntrada) if anioMesaEntrada else None
+        #armar nro de entrada....debe ser consecutivos por año. 
         nroEntrada = service.obtener_proximo_nro_entrada(anioMesaEntrada)
 
         #fechaIngresoSistema = datetime.now()
         fechaUltimaMod = datetime.now()
 
-         # Procesar propietarios
+        # Procesar propietarios
         valoresPropietarios = []
         for i in range(1, idFila + 1):  # recorre prop1...propN
             valor = (await request.form()).get(f"prop{i}", "").strip()
@@ -84,17 +83,22 @@ async def agregar_expediente_post(
             if valor:
                 partes = valor.split("/")
                 if len(partes) >= 11:
+
+                    nro_calle_int = int(partes[5]) if partes[5] else None
+                    area_celular_int = int(partes[8]) if  partes[8] else None
+                    nro_celular_int = int(partes[9]) if partes[9] else None
+
                     propietario = PropietarioModel(
                         cuil_cuit = partes[0],
                         apellido = partes[1],
                         nombre = partes[2],
                         figuraPpal = partes[3],
                         calle = partes[4],
-                        nroCalle = partes[5],
+                        nroCalle = nro_calle_int,# partes[5],
                         piso = partes[6],
-                        dpto = partes[7],
-                        areaCelular = partes[8],
-                        nroCelular = partes[9],
+                        nroDpto = partes[7],
+                        areaCelular = area_celular_int, #partes[8],
+                        nroCelular = nro_celular_int,#partes[9],
                         email = partes[10]
                     )
                     valoresPropietarios.append(propietario)
@@ -110,12 +114,28 @@ async def agregar_expediente_post(
         #    fechaIngresoSistema=fechaIngresoSistema,
             fechaUltimaMod=fechaUltimaMod  
         )
-                        
-        service.crear_expediente(nuevo_expediente, valoresPropietarios)  # ✅ usás el método de instancia
-        
-        return RedirectResponse("/expedientes", status_code=303)
-   
 
+        exito = service.crear_expediente(nuevo_expediente, valoresPropietarios)  
+        
+        if "/" not in exito:
+            # No contiene "/"
+            parte1=""
+        else:
+            # Contiene "/"
+            parte1, parte2 = exito.split("/")
+
+        if parte1 == "duplicado":
+            return JSONResponse(
+                status_code=status.HTTP_409_CONFLICT,
+                content={"error": "El Cuil/Cuit " + parte2 + " ingresado ya fue asignado a un Propietario. Verifique la información."}
+            )
+        
+        else:
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={"message": "Expediente agregado exitosamente"}
+            )
+        
 @router.put("/expediente/{idExpediente}", response_model=ExpedienteModel)
 async def update_expediente(
     idExpediente: int,
