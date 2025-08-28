@@ -6,6 +6,8 @@
                 <h4 class="modal-title" id="myModalLabel">Actualizar Expediente</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             </div>
+            <form id="formExpedienteUpdate" method="post" > 
+        	        
             <input type="hidden" id="IDEXPEDIENTEEditHIDDEN" name="IDEXPEDIENTEEditHIDDEN"/>
             <input type="hidden" id="IDESTADOEXPEDIENTEEditHIDDEN" name="IDESTADOEXPEDIENTEEditHIDDEN"/>
             <div class="modal-body">
@@ -199,7 +201,7 @@
 
                             <div class="modal-footer">
                                 <button type="button" class="cancela btn btn-default" data-dismiss="modal">Cerrar</button>
-                                <button type="button" class="acepta btn btn-success" id="modificar_Expediente">Actualizar</button>
+                                <button type="submit" class="acepta btn btn-success" id="modificar_Expediente" >Actualizar</button>
                             </div>
                         <!-- /.container-fluid -->
                         </div>
@@ -209,6 +211,7 @@
                 </div>
             <!-- end of body block -->
             </div>
+        </form>   
         </div>
     </div>
 </div>
@@ -224,8 +227,9 @@
 
    
  function insertarPropietarioEdit(){
-         idFila=document.getElementById("idFilaEdit").value;
-
+         let idFila = Number(document.getElementById("idFilaEdit").value);
+         idFila=idFila + 1;   
+     
          //Leo Datos Personales
          let nombre = document.getElementById("nombreEdit").value;
          let apellido = document.getElementById("apellidoEdit").value;
@@ -256,7 +260,7 @@
          if ((idFila%2) != 0){ style = "sr";}
          if(figuraPpal==0){ ppal= "NO";}else{ ppal= "SI";}
          
-         let fila = "<td class='" + style + "' width='2'><input type='hidden' name='prop" + idFila + "' id='prop" + idFila + "' value='" + valor + "'></td><td class='" + style + "'  width='10'><button type='button' class='btn' onClick='deletePropietarioEdit(" + idFila + ")' title='Borrar Propietario'><i class='icon-trash'></i></button></td><td class='" + style + "'  width='50' align='left'>" + apellido + "</td><td class='" + style + "'  width='50' align='left'>" + nombre + "</td><td class='" + style + "'  width='50' align='left'>" + cuil_cuit + "</td><td class='" + style + "'  width='50' align='left'>" + ppal + "</td>" ;
+         let fila = "<td class='" + style + "' width='2'><input type='hidden' name='propEdit" + idFila + "' id='propEdit" + idFila + "' value='" + valor + "'></td><td class='" + style + "'  width='10'><button type='button' class='btn' onClick='deletePropietarioEdit(" + idFila + ")' title='Borrar Propietario'><i class='icon-trash'></i></button></td><td class='" + style + "'  width='50' align='left'>" + apellido + "</td><td class='" + style + "'  width='50' align='left'>" + nombre + "</td><td class='" + style + "'  width='50' align='left'>" + cuil_cuit + "</td><td class='" + style + "'  width='50' align='left'>" + ppal + "</td>" ;
                                                 
          let btn = document.createElement("TR");
          btn.id=idFila;
@@ -264,59 +268,67 @@
          document.getElementById("tablaPropietariosEdit").appendChild(btn);
 
        //  document.getElementById("contFila").value = `${idFila}`; 
-         document.getElementById("idFila").value = `${++idFila}`;       
+         document.getElementById("idFilaEdit").value = `${++idFila}`;       
     }
 
     function deletePropietarioEdit(idFila){
         document.getElementById(idFila).remove();
        // document.getElementById("contFila").value = document.getElementById("contFila").value -1;
     }
-    
-    document.getElementById('modificar_Expediente').addEventListener('click', async function(e) {
-    e.preventDefault(); // Evita que el formulario haga un POST tradicional
 
-    const id = document.getElementById('IDEXPEDIENTEEditHIDDEN').value;
-    const idTipoObra = document.getElementById('idTipoObraEdit').value;
-    const nroPartida = document.getElementById('nroPartidaEdit').value;
-    const nroExpedienteMesaEntrada = document.getElementById('nroExpedienteMesaEntradaEdit').value;
-    const anioMesaEntrada = document.getElementById('anioMesaEntradaEdit').value;
-    const sucesion = document.getElementById('sucesionEdit').value;
-    const observaciones = document.getElementById('observacionesEdit').value;
-    const idEstadoExpedienteNuevo = document.getElementById('idEstadoExpedienteEdit').value;
-    const idEstadoExpedienteActual = document.getElementById('IDESTADOEXPEDIENTEEditHIDDEN').value;
+    document.getElementById('formExpedienteUpdate').addEventListener('submit', async function(e) {
+        e.preventDefault(); // Evita que el formulario haga un POST tradicional
 
-    try {
-    alert("nroPartida: " + nroPartida);
-    alert("estadoNuevo: " + idEstadoExpedienteNuevo);
-    alert("estadoActual: " + idEstadoExpedienteActual);
-        const response = await fetch(`/expediente/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                idTipoObra: idTipoObra,
-                nroPartida: nroPartida,
-                nroExpedienteMesaEntrada: nroExpedienteMesaEntrada,
-                anioMesaEntrada: anioMesaEntrada,
-                sucesion: sucesion,
-                observaciones: observaciones,
-                idEstadoExpNuevo: idEstadoExpedienteNuevo,
-                idEstadoExpActual: idEstadoExpedienteActual
-            })
-        });
+        const form = e.target;
+        const formData = new FormData(form);
 
-        if (response.ok) {
-            $('#update_Expediente').modal('hide');
-            location.reload(); // recarga tabla con datos actualizados
-        } else {
-            const error = await response.json();
-            alert('Error al actualizar Expediente: ' + (error.error || 'Error desconocido'));
+        const id = document.getElementById('IDEXPEDIENTEEditHIDDEN').value;
+        const formJSON = Object.fromEntries(formData.entries());
+
+        // Mapear los nombres
+        const payload = {
+                nroEntrada: formJSON.nroExpedienteMesaEntradaEdit,
+                anioMesaEntrada: formJSON.anioMesaEntradaEdit,
+                nroExpedienteMesaEntrada: formJSON.nroExpedienteMesaEntradaEdit,
+                nroPartida: formJSON.nroPartidaEdit,
+                sucesion: formJSON.sucesionEdit,
+                observaciones: formJSON.observacionesEdit,
+                idTipoObra: formJSON.idTipoObraEdit,
+                IDESTADOEXPEDIENTEEditHIDDEN: formJSON.IDESTADOEXPEDIENTEEditHIDDEN,
+                idEstadoexpedienteEdit: formJSON.idEstadoExpedienteEdit,
+                idFilaEdit: formJSON.idFilaEdit,
+                // Propietarios dinámicos
+                propietarios: []
+        };
+        try {
+
+    // Recorrer todos los campos que empiezan con "propEdit" y agregarlos al array
+    for (let key in formJSON) {
+        if (key.startsWith('propEdit')) {
+            payload.propietarios.push(formJSON[key]);
         }
-    } catch (err) {
-        alert('Error de red o del servidor: ' + err.message);
     }
+
+    //Mostrar payload completo con alert antes de enviar
+    //alert("Payload a enviar:\n" + JSON.stringify(payload, null, 2));
+           
+            const response = await fetch(`/expediente/${id}`, {
+                method: "PUT",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }); 
+            
+            if (response.ok) {
+                $('#update_Expediente').modal('hide');
+                location.reload(); // recarga tabla con datos actualizados
+            } else {
+                const error = await response.json();
+                alert('Error al actualizar el Expediente: ' + (error.error || 'Error desconocido'));
+            }
+        } catch (err) {
+            alert('Error de red o del servidor: ' + err.message);
+        }
 });
- 
+    
 </script>
 {% endblock modal %}

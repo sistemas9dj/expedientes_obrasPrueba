@@ -6,6 +6,7 @@ from models.tipoObra_model import TipoObraModel
 
 if TYPE_CHECKING:
      from models.expediente_estadoExpediente_model import Expediente_EstadoExpedienteModel
+     from models.expediente_profesional_model import Expediente_ProfesionalModel
 #    from models.expediente_propietario_model import Expediente_PropietarioModel
      
 class ExpedienteModel(SQLModel, table=True):
@@ -35,6 +36,8 @@ class ExpedienteModel(SQLModel, table=True):
 
     # Relación N a N (tabla intermedia Expediente_EstadoExpediente)
     estados: List["Expediente_EstadoExpedienteModel"] = Relationship(back_populates="expediente")
+    # Relación N a N (tabla intermedia Expediente_Profesional)
+    profesionales: List["Expediente_ProfesionalModel"] = Relationship(back_populates="expediente")
     # Relación N a N (tabla intermedia Expediente_Propietario)
     #propietarios: List["Expediente_PropietarioModel"] = Relationship(back_populates="expediente")
      

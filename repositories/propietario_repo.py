@@ -12,6 +12,11 @@ def get_all(session: Session) -> List[PropietarioModel]:
 def get_by_id(session: Session, id: int) -> Optional[PropietarioModel]:
     return session.get(PropietarioModel, id)
 
+def get_by_all_id(session: Session, ids_propietarios: List[int]) -> List[PropietarioModel]:
+    return session.exec(
+             select(PropietarioModel).where(PropietarioModel.idPropietario.in_(ids_propietarios))
+           ).all()
+
 def create(session: Session, profesional: PropietarioModel) -> PropietarioModel:
     session.add(profesional)
     session.commit()
@@ -28,7 +33,9 @@ def delete(session: Session, profesional: PropietarioModel):
     session.delete(profesional)
     session.commit()
 
-def get_by_cuit(session: Session, apellido : str, cuil: str) -> List[PropietarioModel]:
+def get_by_cuit_distintApellido(session: Session, apellido : str, cuil: str) -> List[PropietarioModel]:
     return session.exec(select(PropietarioModel).where(PropietarioModel.apellido != apellido, PropietarioModel.cuil_cuit == cuil)).all()
 
+def get_by_cuit(session: Session, cuil: str) -> List[PropietarioModel]:
+    return session.exec(select(PropietarioModel).where(PropietarioModel.cuil_cuit == cuil)).all()
                                

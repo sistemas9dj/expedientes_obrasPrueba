@@ -172,12 +172,70 @@
                                                     </table> 
                                                 </div>
                                             </div>
-                                        <!--Fin Carga dinámica por fechas alternadas por javaScript-->
+                                        <!--Fin Carga dinámica por javaScript-->
                                         </div>   
                                     </fieldset>    
                                 </div>
                             </div>    
                             
+<!--Bloque Profesional-->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <a class="card-link" data-toggle="collapse" href="#collapseThree">
+                                        <div class="row" >
+                                            <div class="col-md-12 mb-1">
+                                                <h5><strong></strong>Profesional (Clickee aquí para ingresar los datos)</strong></h5>
+                                                <h6>Si el profesional no figura. Salga de esta opción y agreguelo por la opción Tablas/Profesionales </h6>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                                 
+                               <div class="card-body">
+                                    <fieldset class="form-group">
+                                        <div id="collapseThree" class="collapse" data-parent="#accordion">
+                                            <div class="row">
+                                                <div class="form-group col-md-6">
+                                                    <label ><strong>PROFESIONAL *</strong></label>
+                                                                        
+                                                    <select name="idProfesional" id="idProfesional" class="form-control" required>
+                                                        <option value="" selected>Seleccione Profesional</option>
+                                                        {% for profesional in profesionales %}
+                                                            <option value="{{ profesional.idProfesional ~ '*'  ~profesional.apellido ~ ', ' ~ profesional.nombre ~ ' /Mat. ' ~ profesional.matricula }}">{{ profesional.apellido ~ ', ' ~ profesional.nombre ~ ' /Mat. ' ~ profesional.matricula}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-md-6">
+                                                    <label ><strong>CONTACTO PPAL.</strong></label>
+                                                    <select name="contactoPpal" id="contactoPpal" class="form-control" required>
+                                                        <option value="1" >SI</option>
+                                                        <option value="0" selected>NO</option>
+                                                    </select>
+                                                </div>
+                                                <!--Carga dinámica por fechas alternadas por javaScript-->
+                                                    <input type="hidden" id="idFilaProf" name="idFilaProf" value="1" />
+                                                    <div class="row col-md-12" align="center">
+                                                        <div class="form-group col-md-12"  >
+                                                            <button type="button" class="boton_1" onclick="insertarProfesionales()" title="Agregar Profesional"  ><i class='glyphicon glyphicon-plus'></i> Agregar Profesional</button>
+                                                        </div>
+                                                    </div>   
+                                                    <div class="col-md-12">
+                                                        <table id="tablaProfesionales" class="tbl" border="0" cellspacing="1" cellpadding="4" width="100%" >   
+                                                            <tr id='0' name= '0'>          
+                                                                <td class="hr" width="10" align="left"></td>
+                                                                <td class="hr" width="10" align="left"></td>
+                                                                <td class="hr" width="50" align="left"><strong>PROFESIONAL</strong></td>
+                                                                <td class="hr" width="50" align="left"><strong>PPAL.</strong></td>
+                                                            </tr>
+                                                        </table> 
+                                                    </div>
+                                                <!--Fin Carga dinámica por javaScript-->
+                                            </div>
+                                        </div> 
+                                    </fieldset>    
+                                </div>
+                            </div>    
+        
                             <div class="modal-footer">
                                 <button type="button" class="cancela btn btn-default" data-dismiss="modal">Cerrar</button>
                                 <button type="submit" class="acepta btn btn-success">Agregar</button>
@@ -197,6 +255,14 @@
 {% endblock modal %}
 
 <script>
+    // Establecer el año actual como valor por defecto y límite máximo
+    const inputAnio = document.getElementById("anioMesaEntrada");
+    const anioActual = new Date().getFullYear();
+    inputAnio.max = anioActual;
+    inputAnio.value = anioActual;
+    
+    document.getElementById("anioMesaEntrada").value = anioActual;
+
     document.getElementById("nroPartida").addEventListener("keydown", function (e) {
        validarCaracterEnNro(e);
     });
@@ -204,13 +270,6 @@
     document.getElementById("nroPartida").addEventListener("input", function (e) {
        validarLongitudNro(e, 7)
     });
-
-    // Establecer el año actual como valor por defecto y límite máximo
-    const inputAnio = document.getElementById("anioMesaEntrada");
-    const anioActual = new Date().getFullYear();
-    inputAnio.max = anioActual;
-    inputAnio.value = anioActual;
-    document.getElementById("anioMesaEntrada").value = anioActual;
 
     function insertarPropietario(){
          idFila=document.getElementById("idFila").value;
@@ -261,7 +320,6 @@
        // document.getElementById("contFila").value = document.getElementById("contFila").value -1;
     }
 
-
     function insertarProfesionales(){
         idFila=document.getElementById("idFilaProf").value;
 
@@ -275,8 +333,7 @@
         let contactoPpal = document.getElementById("contactoPpal").value;
                   
         if(profesional == ''){alert("El Profesional es de ingreso obligatorio."); exit;}
-        //De la forma valor= fecha + "/" + cantidad + "/" + idUnidad + "/" + retiro;
-         //valor= profesional + "/" + apellido + "/" + nombre + "/" + figuraPpal + "/" + calle + "/" + nroCalle + "/" +piso+ "/" +dpto+ "/" +areaCelular+ "/" +nroCelular+ "/" +email;
+
         valor= idProfesional + "/" + contactoPpal;
          
         style = "dr";
@@ -322,6 +379,6 @@
         } catch (err) {
             alert('Error de red o del servidor: ' + err.message);
         }
-});
+    });
 		
 </script>

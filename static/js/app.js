@@ -92,10 +92,9 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
     // 🔹 2) Llamo al backend para traer propietarios del expediente
     try {
         const resp = await fetch(`/expediente/${idExpediente}/propietarios`);
+        
         if (!resp.ok) throw new Error("Error al cargar propietarios");
-
         const propietarios = await resp.json();
-
         // 🔹 3) Renderizo cada propietario en la tabla
         propietarios.forEach((p, idx) => {
             let style = (idx % 2 === 0) ? "dr" : "sr";
@@ -103,11 +102,11 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
 
             let fila = `
                 <td class='${style}' width='2'>
-                    <input type='hidden' name='prop${idx}' id='prop${idx}' 
+                    <input type='hidden' name='propEdit${idx+1}' id='propEdit${idx+1}' 
                         value='${p.cuil_cuit}/${p.apellido}/${p.nombre}/${p.figuraPpal}/${p.calle}/${p.nroCalle}/${p.piso}/${p.dpto}/${p.areaCelular}/${p.nroCelular}/${p.email}'>
                 </td>
                 <td class='${style}' width='10'>
-                    <button type='button' class='btn' onClick='deletePropietarioEdit(${idx})' title='Borrar Propietario'>
+                    <button type='button' class='btn' onClick='deletePropietarioEdit(${idx+1})' title='Borrar Propietario'>
                         <i class='icon-trash'></i>
                     </button>
                 </td>
@@ -118,14 +117,14 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
             `;
 
             let row = document.createElement("TR");
-            row.id = idx;
+            row.id = idx+1;
             row.innerHTML = fila;
             tabla.appendChild(row);
         });
 
         // Actualizo el contador de filas
-        document.getElementById("idFilaEdit").value = propietarios.length + 1;
-
+        document.getElementById("idFilaEdit").value = propietarios.length;
+     
     } catch (err) {
         console.error("Error cargando propietarios: ", err);
         alert("No se pudieron cargar los propietarios");

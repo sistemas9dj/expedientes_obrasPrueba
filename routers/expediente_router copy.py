@@ -25,9 +25,6 @@ router = APIRouter()
 
 templates = Jinja2Templates(directory="templates")
 
-# -------------------------------
-# LISTAR EXPEDIENTES
-# -------------------------------
 @router.get("/expedientes", response_model=List[ExpedienteModel])
 async def get_expedientes(request: Request, session: Session = Depends(get_session)):
 
@@ -51,16 +48,10 @@ async def get_expedientes(request: Request, session: Session = Depends(get_sessi
         "estadosExpedientes": estadosExpedientes
     })
 
-# -------------------------------
-# AGREGAR EXPEDIENTE (GET)
-# -------------------------------
 @router.get("/agregar_expediente", response_model=ExpedienteModel)
 async def agregar_expediente_get(request: Request, session: Session = Depends(get_session)):
      return templates.TemplateResponse("agregar_expediente.html",{"request":request})
-
-# -------------------------------
-# AGREGAR EXPEDIENTE (POST)
-# -------------------------------                                      
+                                      
 @router.post("/agregar_expediente", response_model=ExpedienteModel)
 async def agregar_expediente_post(
     request: Request,
@@ -145,107 +136,82 @@ async def agregar_expediente_post(
                 content={"message": "Expediente agregado exitosamente"}
             )
 
-# ---------------------------------------
-# OBTENER PROPIETARIOS DE UN EXPEDIENTE
-# ---------------------------------------
 #Retorna solo los propietarios de un expediente determinado. Relacion N a N
 @router.get("/expediente/{idExpediente}/propietarios", response_model=List[PropietarioModel])
 def get_propietarios_expediente(idExpediente: int, session: Session = Depends(get_session)):
     service = ExpedienteService(session)
+    print(f"📌 Llegó al endpoint con idExpediente = {idExpediente}")
     return service.get_propietarios(idExpediente)
 
-# -------------------------------
-# ACTUALIZAR EXPEDIENTE
-# -------------------------------
 @router.put("/expediente/{idExpediente}", response_model=ExpedienteModel)
 async def update_expediente(
     idExpediente: int,
     expediente_data: dict = Body(...),
     session: Session = Depends(get_session)
 ):
+    expediente = session.get(ExpedienteModel, idExpediente)
+    if not expediente:
+        return {"error": "Expediente no encontrado"}
+
+    # Helper para convertir campos vacíos a None
+    def clean_int(value):
+        return int(value) if isinstance(value, int) or (isinstance(value, str) and value.strip().isdigit()) else None
+    
     fechaUltimaMod = datetime.now()
 
-    expediente = ExpedienteModel(
-        idExpediente = idExpediente,
-        nroEntrada=expediente_data["nroEntrada"],
-        anioMesaEntrada=expediente_data["anioMesaEntrada"],
-        nroExpedienteMesaEntrada=expediente_data["nroExpedienteMesaEntrada"],
-        nroPartida=expediente_data["nroPartida"],
-        sucesion=expediente_data["sucesion"],
-        observaciones=expediente_data["observaciones"],
-        idTipoObra=expediente_data["idTipoObra"],
-        fechaUltimaMod=fechaUltimaMod  
-    )
+    expediente.anioMesaEntrada = expediente_data["anioMesaEntrada"]
+    expediente.nroExpedienteMesaEntrada = expediente_data["nroExpedienteMesaEntrada"]
+    expediente.nroPartida = expediente_data["nroPartida"]
+    expediente.fechaUltimaMod = fechaUltimaMod
+    expediente.idTipoObra = clean_int(expediente_data.get("idTipoObra"))
+    expediente.sucesion = clean_int(expediente_data.get("sucesion"))
+    expediente.observaciones = clean_int(expediente_data.get("observaciones"))   
 
-    service = ExpedienteService(session)
+    #Agregar Nuevo estado si es que cambio
+    idEstadoExpediente = clean_int(expediente_data.get("idEstadoExpNuevo"))
+    idEstadoExpedienteActual = clean_int(expediente_data.get("idEstadoExpActual"))
 
-    #Leer estado anterios
-    idEstadoExpedienteAnterior=expediente_data["IDESTADOEXPEDIENTEEditHIDDEN"]
-    #Leer el nuevo estado
-    idEstadoExpedienteNuevo=expediente_data["idEstadoexpedienteEdit"]
-
-#    print("""==============================================================""")
-#    print("""PROPIETARIOS ROUTER""")
-#    print("""==============================================================""")
-   
-    valoresPropietarios = []
-    for valor in expediente_data.get("propietarios", []):  # recorre prop1...propN
-        # valor esperado: "cuil/apellido/nombre/figuraPpal/calle/nroCalle/piso/dpto/areaCel/nroCel/email"
-        partes = valor.split("/")
-        if len(partes) >= 11:
-
-                propietario = PropietarioModel(
-                    cuil_cuit = partes[0],
-                    apellido = partes[1],
-                    nombre = partes[2],
-                    figuraPpal = partes[3],
-                    calle = partes[4],
-                    nro_calle_int = int(partes[5]) if partes[5] not in (None, "", "null") else None,
-                    piso = partes[6],
-                    nroDpto = partes[7],
-                    area_celular_int = int(partes[8]) if partes[8] not in (None, "", "null") else None,
-                    nro_celular_int = int(partes[9]) if partes[9] not in (None, "", "null") else None,
-                    email = partes[10]
-                )
-                valoresPropietarios.append(propietario)
+    idEstadoExpedienteNuevo = idEstadoExpediente if idEstadoExpediente is not None and idEstadoExpediente != idEstadoExpedienteActual else None
     
- 
-    #print("Cantidad de propietarios router:!!!!!!!!", len(valoresPropietarios))
+    service = ExpedienteService(session)  # ✅ instanciás la clase
+    service.actualizar_expediente(expediente, idEstadoExpedienteNuevo)
 
-        print("""==============================================================""")
-        print("""   PROFESIONALES ROUTER""")
-        print("""==============================================================""")
-    #Leer cantidad de propietarios
-   # idFila: int = int(expediente_data["idFilaProfEdit"])  # cantProFESIONALES
+    #Agregar Propietarios
+    idFilasPropietario = clean_int(expediente_data.get("idFila"))
 
-    valoresProfesionales = []
-    for valor in expediente_data.get("profesionales", []):  # recorre prop1...propN
-        # valor esperado: "idProfesional/contactoPpal"
-        partes = valor.split("/")
-        if len(partes) >= 2:
+    for i in range(1, idFilasPropietario):  
+        valor = expediente_data.get(f"prop{i}", "").strip()  # prop1, prop2, etc.
+        #de la forma  valor= cuil_cuit + "/" + apellido + "/" + nombre + "/" + figuraPpal + "/" + calle + "/" + nroCalle + "/" +piso+ "/" +dpto+ "/" +areaCelular+ "/" +nroCelular+ "/" +email;
+         
 
-                profesional = ProfesionalModel(
-                    idProfesional = int(partes[0]) if partes[0] not in (None, "", "null") else None,
-                    contactoPpal = partes[1]
-                )
-                valoresProfesionales.append(profesional)
+    if valor:
+        # Extraer curso y el resto después de la primera "/"
+        pos = valor.find("/")
+        if pos != -1:
+            cuil = valor[:pos]
+            resto = valor[pos + 1:]
 
-    exito = service.actualizar_expediente(expediente,idEstadoExpedienteAnterior,idEstadoExpedienteNuevo,valoresPropietarios,valoresProfesionales)
+            # Extraer idArea hasta la próxima "/"
+            pos2 = resto.find("/")
+            if pos2 != -1:
+                apellido = resto[:pos2]
+                resto = valor[pos2 + 2:]
+            else:
+                apellido = resto  # si no hay más "/"
+
+                        # Extraer idArea hasta la próxima "/"
+            pos3 = resto.find("/")
+            if pos3 != -1:
+                nombre = resto[:pos3]
+                resto = valor[pos3 + 3:]
+            else:
+                nombre = resto  # si no hay más "/"
     
-    if exito == "noExiste":
-        return JSONResponse(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    content={"error": "Expediente no encontrado."}
-                )
-    else:    
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"message": "Expediente actualizado exitosamente"}
-        )
+            #sql_insert_PostulanteCurso(idPostulante, curso, idArea)
 
-# -------------------------------
-# ELIMINAR EXPEDIENTE
-# -------------------------------
+    return expediente
+
+
 @router.delete("/expediente/{idExpediente}")
 async def delete_expediente(
     idExpediente: int,
@@ -259,46 +225,3 @@ async def delete_expediente(
     return {"message": "Expediente eliminado exitosamente"}
 
 
-# -------------------------------------------------
-# FUNCION AUXILIAR: ACTUALIZAR PROPIETARIOS N a N
-# -------------------------------------------------
-def actualizar_propietarios(session: Session, idExpediente: int, lista_propietarios: list[dict]):
-    # Relaciones actuales
-    relaciones_actuales = session.exec(
-        select(Expediente_PropietarioModel).where(Expediente_PropietarioModel.idExpediente == idExpediente)
-    ).all()
-    ids_actuales = [r.idPropietario for r in relaciones_actuales]
-
-    # IDs enviados
-    ids_enviados = [p.get('idPropietario') for p in lista_propietarios if p.get('idPropietario')]
-
-    # Eliminar relaciones que ya no están
-    for r in relaciones_actuales:
-        if r.idPropietario not in ids_enviados:
-            session.delete(r)
-
-    # Agregar nuevos propietarios o relaciones
-    for p in lista_propietarios:
-        idP = p.get('idPropietario')
-        propietario = None
-        if idP:
-            propietario = session.get(PropietarioModel, idP)
-
-        if not propietario:
-            propietario = PropietarioModel(**p)
-            session.add(propietario)
-            session.flush()  # Para generar idPropietario
-
-        # Agregar relación si no existía
-        existe_relacion = session.exec(
-            select(Expediente_PropietarioModel)
-            .where(Expediente_PropietarioModel.idExpediente == idExpediente)
-            .where(Expediente_PropietarioModel.idPropietario == propietario.idPropietario)
-        ).first()
-
-        if not existe_relacion:
-            relacion = Expediente_PropietarioModel(
-                idExpediente=idExpediente,
-                idPropietario=propietario.idPropietario
-            )
-            session.add(relacion)

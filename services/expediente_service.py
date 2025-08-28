@@ -45,22 +45,22 @@ class ExpedienteService:
 
     #Obtener propietarios del Expedeinte. relacion N a N
     def get_propietarios(self, idExpediente: int):
-        return expediente_repo.get_propietarios(idExpediente)
+        return expediente_repo.get_propietarios(self.session,idExpediente)
 
     def crear_expediente(self, nuevoExpediente: ExpedienteModel, propietarios_data: list[dict]) -> Optional[ExpedienteModel]:
         #Validar que no exista un propietario con el Cuil ingresado
         for p in propietarios_data:
-            propietario = propietario_repo.get_by_cuit(self.session, p.apellido, p.cuil_cuit)
+            propietario = propietario_repo.get_by_cuit_distintApellido(self.session, p.apellido, p.cuil_cuit)
             if propietario:
                 return "duplicado/" +  p.cuil_cuit 
         
         return expediente_repo.create_expediente_con_propietarios(self.session,nuevoExpediente, propietarios_data) 
        
-    def actualizar_expediente(self, updateExpediente: ExpedienteModel, idEstadoExpediente:int) -> Optional[ExpedienteModel]:
- 
+    def actualizar_expediente(self, updateExpediente: ExpedienteModel, idEstadoExpediente:int, idEstadoExpNuevo:int,propietarios_data: list[dict],profesionales_data: list[dict]) -> Optional[ExpedienteModel]:
+        
         expediente = expediente_repo.get_by_id(self.session, updateExpediente.idExpediente)
         if not expediente:
-          return "noExiste"
+            return "noExiste"
         
         # Actualizar campos manualmente
         expediente.idTipoObra = updateExpediente.idTipoObra
@@ -70,8 +70,7 @@ class ExpedienteService:
         expediente.sucesion = updateExpediente.sucesion
         expediente.observaciones = updateExpediente.observaciones
 
-        #return expediente_repo.update(self.session, expediente, idEstadoExpediente)        
-        return {"message": "Expediente agregado exitosamente"}
+        return expediente_repo.update_expediente_con_propietarios(self.session, expediente, idEstadoExpediente, idEstadoExpNuevo,propietarios_data, profesionales_data)        
             
     def eliminar_expediente(self, id: int) -> bool:
         expediente = expediente_repo.get_by_id(self.session, id)

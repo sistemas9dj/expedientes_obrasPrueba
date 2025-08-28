@@ -31,3 +31,7 @@ class PropietarioModel(SQLModel, table=True):
   #  )
 # Resolver forward references
 #PropietarioModel.update_forward_refs()    
+
+    #orm_mode = True,permite que FastAPI va a poder convertir automáticamente los objetos SQLAlchemy en JSON válido.
+    class Config:
+            orm_mode = True
