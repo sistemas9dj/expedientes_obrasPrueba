@@ -38,6 +38,7 @@ class ExpedienteModel(SQLModel, table=True):
     estados: List["Expediente_EstadoExpedienteModel"] = Relationship(back_populates="expediente")
     # Relación N a N (tabla intermedia Expediente_Profesional)
     profesionales: List["Expediente_ProfesionalModel"] = Relationship(back_populates="expediente")
+    
     # Relación N a N (tabla intermedia Expediente_Propietario)
     #propietarios: List["Expediente_PropietarioModel"] = Relationship(back_populates="expediente")
      

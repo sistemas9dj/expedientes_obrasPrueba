@@ -5,7 +5,7 @@ from models.propietario_model import PropietarioModel
 from models.expediente_propietario_model import Expediente_PropietarioModel
 from models.expediente_profesional_model import Expediente_ProfesionalModel
 
-from repositories import propietario_repo
+from repositories import propietario_repo, profesional_repo
 
 from typing import List, Optional
 from sqlalchemy.orm import selectinload
@@ -51,6 +51,23 @@ def get_propietarios(session: Session, idExpediente: int):
 
         return propietarios
 
+def get_profesionales(session: Session, idExpediente: int):
+        # 1) Buscar relaciones en la tabla intermedia
+        relaciones = session.exec(
+            select(Expediente_ProfesionalModel).where(Expediente_ProfesionalModel.idExpediente == idExpediente)
+        ).all()
+
+        if not relaciones:
+            return []
+
+        # 2) Extraer los ids de profesionales
+        ids_profesionales = [rel.idProfesional for rel in relaciones]
+
+        # 3) Buscar propietarios con esos IDs
+        profesionales = profesional_repo.get_by_all_id(session,ids_profesionales)
+      
+        return profesionales
+
 def create(session: Session, expediente : ExpedienteModel, propietarios : list[dict]) -> ExpedienteModel :
     #Crea un expediente sin propietarios y son profesionales
     session.add(expediente)
@@ -68,7 +85,7 @@ def create(session: Session, expediente : ExpedienteModel, propietarios : list[d
     session.refresh(expediente)
     return expediente 
 
-def create_expediente_con_propietarios(session: Session, expediente : ExpedienteModel, propietarios : list[dict]) -> ExpedienteModel :
+def create_expediente_completo(session: Session, expediente : ExpedienteModel, propietarios : list[dict], expedientesProfesionales : list[dict]) -> ExpedienteModel :
     #Crea un expedeinte completo, es decir, agrega las relaciones con estadoExpedeinte, propietariosExpedientes y ProfesionalesExpedientes
     session.add(expediente)
     session.commit()
@@ -83,7 +100,10 @@ def create_expediente_con_propietarios(session: Session, expediente : Expediente
     session.add(nuevo_estado)
 
     #Crear propietarios y asociarlos a la tabla expediente_propietario
-    for p in propietarios:
+    for p_dict in propietarios:
+
+        p = p_dict["propietario"]
+        figuraPpal = p_dict["figuraPpal"]
         # Buscar si ya existe un propietario con ese CUIL. sI EXISTE SOLO SE ACTUALIZAN LOS DATOS. A ESTA ALTURA SE VERIFICO QUE EL APELLIDO COINCIDE.
         cuil = p.cuil_cuit
         existing_propietario = session.exec(select(PropietarioModel).where(PropietarioModel.cuil_cuit == cuil)).first()
@@ -100,8 +120,7 @@ def create_expediente_con_propietarios(session: Session, expediente : Expediente
                 nroDpto=p.nroDpto,
                 areaCelular=p.areaCelular,
                 nroCelular=p.nroCelular,
-                email=p.email,
-                figuraPpal=p.figuraPpal
+                email=p.email
             )
             session.add(nuevo_propietario)
             session.commit()
@@ -117,21 +136,34 @@ def create_expediente_con_propietarios(session: Session, expediente : Expediente
             existing_propietario.areaCelular = p.areaCelular 
             existing_propietario.nroCelular = p.nroCelular 
             existing_propietario.email = p.email
-            existing_propietario.figuraPpal = p.figuraPpal
-  
+            
             session.commit()
             session.refresh(existing_propietario)
             prop_id = existing_propietario.idPropietario       
             
-        #Registar la relacion Expedeinte_Propietario
+        #Registar la relacion Expediente_Propietario
         nuevo_ExpProp = Expediente_PropietarioModel(
             idExpediente=expediente.idExpediente,
             idPropietario=prop_id,
+            figuraPpal=figuraPpal,
             fechaCambioPropietario= datetime.now()
         )
     
         # Asociar propietarios al expediente (relación N a N)
         session.add(nuevo_ExpProp)
+
+        #Crear relacion expediente_profesional
+        for p in expedientesProfesionales:
+            #Registar la relacion Expediente_Profesional
+            nuevo_ExpProf = Expediente_ProfesionalModel(
+                idExpediente=expediente.idExpediente,
+                idProfesional=p.idProfesional,
+                contactoPpal=p.contactoPpal,
+                fechaIngresoSistema= datetime.now()
+            )
+        
+            # Asociar propietarios al expediente (relación N a N)
+            session.add(nuevo_ExpProf)
                 
     session.commit()
     return "exito" 
@@ -193,8 +225,7 @@ def update_expediente_con_propietarios(session: Session, expediente : Expediente
                 nroDpto=p.nroDpto,
                 areaCelular=p.areaCelular,
                 nroCelular=p.nroCelular,
-                email=p.email,
-                figuraPpal=p.figuraPpal
+                email=p.email
             )
             session.add(nuevo_propietario)
             session.commit()
@@ -205,6 +236,7 @@ def update_expediente_con_propietarios(session: Session, expediente : Expediente
             nuevo_ExpProp = Expediente_PropietarioModel(
                 idExpediente=expediente.idExpediente,
                 idPropietario=prop_id,
+                figuraPpal=p.figuraPpal,
                 fechaCambioPropietario= datetime.now()
             )
             session.add(nuevo_ExpProp)
@@ -219,8 +251,7 @@ def update_expediente_con_propietarios(session: Session, expediente : Expediente
             existing_propietario.areaCelular = p.areaCelular 
             existing_propietario.nroCelular = p.nroCelular 
             existing_propietario.email = p.email
-            existing_propietario.figuraPpal = p.figuraPpal
-  
+             
             session.commit()
             session.refresh(existing_propietario)
             prop_id = existing_propietario.idPropietario       
@@ -240,6 +271,7 @@ def update_expediente_con_propietarios(session: Session, expediente : Expediente
                 nuevo_ExpProp = Expediente_PropietarioModel(
                     idExpediente=expediente.idExpediente,
                     idPropietario=prop_id,
+                    figuraPpal = p.figuraPpal,
                     fechaCambioPropietario= datetime.now()
                 )
     

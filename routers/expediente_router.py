@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Body, Form, Request
-from typing import List, Optional
+from typing import List
 from sqlmodel import Session, select
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi.responses import RedirectResponse,JSONResponse
@@ -10,10 +10,11 @@ from datetime import datetime
 from fastapi import status
 
 from models.expediente_model import ExpedienteModel
-from models.tipoObra_model import TipoObraModel
+#from models.tipoObra_model import TipoObraModel
 from models.profesional_model import ProfesionalModel
-from models.estadoExpediente_model import EstadoExpedienteModel
-from models.expediente_estadoExpediente_model import Expediente_EstadoExpedienteModel
+from models.expediente_profesional_model import Expediente_ProfesionalModel
+#from models.estadoExpediente_model import EstadoExpedienteModel
+#from models.expediente_estadoExpediente_model import Expediente_EstadoExpedienteModel
 from models.propietario_model import PropietarioModel
 
 from services.expediente_service import ExpedienteService
@@ -96,6 +97,7 @@ async def agregar_expediente_post(
                     nro_calle_int = int(partes[5]) if partes[5] else None
                     area_celular_int = int(partes[8]) if  partes[8] else None
                     nro_celular_int = int(partes[9]) if partes[9] else None
+                    figuraPpal_int = int(partes[3]) if partes[3] else 0
 
                     propietario = PropietarioModel(
                         cuil_cuit = partes[0],
@@ -110,7 +112,11 @@ async def agregar_expediente_post(
                         nroCelular = nro_celular_int,#partes[9],
                         email = partes[10]
                     )
-                    valoresPropietarios.append(propietario)
+                    valoresPropietarios.append({
+                        "propietario": propietario,
+                        "figuraPpal": figuraPpal_int
+                    })
+                    
     
         nuevo_expediente = ExpedienteModel(
             nroEntrada=nroEntrada,
@@ -124,7 +130,38 @@ async def agregar_expediente_post(
             fechaUltimaMod=fechaUltimaMod  
         )
 
-        exito = service.crear_expediente(nuevo_expediente, valoresPropietarios)  
+        # Procesar profesionales
+        valoresExpedientesProfesionales = []
+        for i in range(1, idFila + 1):  # recorre prof1...profN
+            valor = (await request.form()).get(f"prof{i}", "").strip()
+            # valor esperado: "idProfesional/contactoPpal"
+
+            if valor:
+                partes = valor.split("/")
+                if len(partes) >= 2:
+
+                    expProfesional = Expediente_ProfesionalModel(
+                        idProfesional = int(partes[0]) if partes[0] else None,
+                        contactoPpal = partes[1],
+                       # fechaIngresoSistema=datetime.now() 
+                    )
+                    valoresExpedientesProfesionales.append(expProfesional)
+                    
+    
+        nuevo_expediente = ExpedienteModel(
+            nroEntrada=nroEntrada,
+            anioMesaEntrada=anioMesaEntrada,
+            nroExpedienteMesaEntrada=nroExpedienteMesaEntrada,
+            nroPartida=nroPartida,
+            sucesion=sucesion,
+            observaciones=observaciones,
+            idTipoObra=idTipoObra,
+        #    fechaIngresoSistema=fechaIngresoSistema,
+            fechaUltimaMod=fechaUltimaMod  
+        )
+        
+
+        exito = service.crear_expediente(nuevo_expediente, valoresPropietarios, valoresExpedientesProfesionales)  
         
         if "/" not in exito:
             # No contiene "/"
@@ -153,6 +190,15 @@ async def agregar_expediente_post(
 def get_propietarios_expediente(idExpediente: int, session: Session = Depends(get_session)):
     service = ExpedienteService(session)
     return service.get_propietarios(idExpediente)
+
+# ---------------------------------------
+# OBTENER PROFESIONALES DE UN EXPEDIENTE
+# ---------------------------------------
+#Retorna solo los propietarios de un expediente determinado. Relacion N a N
+@router.get("/expediente/{idExpediente}/profesionales", response_model=List[ProfesionalModel])
+def get_profesionales_expediente(idExpediente: int, session: Session = Depends(get_session)):
+    service = ExpedienteService(session)
+    return service.get_profesionales(idExpediente)
 
 # -------------------------------
 # ACTUALIZAR EXPEDIENTE

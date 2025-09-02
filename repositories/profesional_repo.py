@@ -9,6 +9,11 @@ def get_all(session: Session) -> List[ProfesionalModel]:
                                 .options(selectinload(ProfesionalModel.tipoProfesion))  # ✅ esta es la relación
                                 .order_by(ProfesionalModel.apellido)).all()
 
+def get_by_all_id(session: Session, ids_profesionales: List[int]) -> List[ProfesionalModel]:
+    return session.exec(
+             select(ProfesionalModel).where(ProfesionalModel.idProfesional.in_(ids_profesionales))
+           ).all()
+
 def get_by_id(session: Session, id: int) -> Optional[ProfesionalModel]:
     return session.get(ProfesionalModel, id)
 

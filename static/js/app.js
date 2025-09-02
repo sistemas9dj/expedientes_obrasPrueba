@@ -68,7 +68,7 @@ $(document).ready(function () {
      
     });
 
-   // Cuando se abre el modal Update Expediente
+// Cuando se abre el modal Update Expediente
 $('#update_Expediente').on('show.bs.modal', async function (event) {
     let button = $(event.relatedTarget);
     let idExpediente = button.data('id');  // el botón que abre el modal debe tener data-id
@@ -76,6 +76,7 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
     let modal = $(this);
     modal.find('#IDEXPEDIENTEEditHIDDEN').val(idExpediente);
 
+    //PROPIETARIOS
     // 🔹 1) Limpio tabla antes de cargar
     let tabla = document.getElementById("tablaPropietariosEdit");
     tabla.innerHTML = `
@@ -124,11 +125,63 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
 
         // Actualizo el contador de filas
         document.getElementById("idFilaEdit").value = propietarios.length;
-     
+    
     } catch (err) {
         console.error("Error cargando propietarios: ", err);
         alert("No se pudieron cargar los propietarios");
     }
+
+    //PROPFESIONALES
+    // 🔹 1) Limpio tabla antes de cargar
+    tabla = document.getElementById("tablaProfesionalesEdit");
+    tabla.innerHTML = `
+        <tr>          
+            <td class="hr" width="10" align="left"></td>
+            <td class="hr" width="10" align="left"></td>
+            <td class="hr" width="50" align="left"><strong>PROFESIONAL</strong></td>
+            <td class="hr" width="50" align="left"><strong>PPAL.</strong></td>
+        </tr>
+    `;
+
+    // 🔹 2) Llamo al backend para traer PROFESIONALES del expediente
+    try {
+        const resp = await fetch(`/expediente/${idExpediente}/profesionales`);
+        
+        if (!resp.ok) throw new Error("Error al cargar profesionales");
+            const profesionales = await resp.json();
+            // 🔹 3) Renderizo cada profesional en la tabla
+            profesionales.forEach((p, idx) => {
+                let style = (idx % 2 === 0) ? "dr" : "sr";
+                let ppal = p.figuraPpal ? "SI" : "NO";
+
+                // valor= idProfesional + "/" + contactoPpal;
+                let fila = `
+                    <td class='${style}' width='2'>
+                        <input type='hidden' name='profEdit${idx+1}' id='profEdit${idx+1}' 
+                            value='${p.idProfesional}/${p.contactoPpal}'>
+                    </td>
+                    <td class='${style}' width='10'>
+                        <button type='button' class='btn' onClick='deleteProfesionalEdit(${idx+1})' title='Borrar Profesional'>
+                            <i class='icon-trash'></i>
+                        </button>
+                    </td>
+                    <td class='${style}' width='50' align='left'>${p.apellido}, ${p.nombre} /Mat. ${p.matricula}</td>
+                    <td class='${style}' width='50' align='left'>${ppal}</td>
+                `;
+
+                let row = document.createElement("TR");
+                row.id = idx+1;
+                row.innerHTML = fila;
+                tabla.appendChild(row);
+        });
+
+        // Actualizo el contador de filas
+        document.getElementById("idFilaEdit").value = propietarios.length;
+    } catch (err) {
+            console.error("Error cargando profesionales: ", err);
+            alert("No se pudieron cargar los profesionales");
+        }
+
 });
 
     // MODAL ELIMINAR EstadoExpediente - Muestra los datos del Estado del Expediente
@@ -284,8 +337,6 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
         modal.find('#razonSocialEdit').val(razonsocial);
         modal.find('#emailEdit').val(mail);
 
-
-
     });
 
     // MODAL ELIMINAR Profesional - Muestra los datos del Profesional
@@ -340,8 +391,6 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
         modal.find('#IDEXPEDIENTEDelHIDDEN').val(id);
         modal.find('.modal-title2').text('¿Estás seguro de eliminar el Expediente: ' +  nroExpediente );     
     });
-
-
     
 });
 

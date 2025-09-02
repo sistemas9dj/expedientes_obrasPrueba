@@ -1,5 +1,5 @@
 #Relacion N a N entre Expedeinte y Profesional. 
-#Esta relacion Guarda los distintos estados por los que pasa el Expediente y registra las fecha
+#Esta relacion Guarda los profesionales asignados al Expediente
 from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, DateTime, func
 from datetime import datetime
@@ -15,7 +15,8 @@ class Expediente_ProfesionalModel(SQLModel, table=True):
     
     idExpediente: int = Field(foreign_key="Expediente.idExpediente", primary_key=True)
     idProfesional: int = Field(foreign_key="Profesional.idProfesional", primary_key=True)
-
+    contactoPpal: int | None = Field(default=1, nullable=True) 
+    
     fechaIngresoSistema: datetime = Field(
         sa_column=Column(DateTime, server_default=func.now())
     )

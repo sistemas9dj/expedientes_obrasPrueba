@@ -15,6 +15,7 @@ class Expediente_PropietarioModel(SQLModel, table=True):
     
     idExpediente: int = Field(foreign_key="Expediente.idExpediente", primary_key=True)
     idPropietario: int = Field(foreign_key="Propietario.idPropietario", primary_key=True)
+    figuraPpal: int | None = Field(default=1, nullable=True) 
 
     fechaCambioPropietario: datetime = Field(
         sa_column=Column(DateTime, server_default=func.now())

@@ -1,6 +1,10 @@
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional
+from typing import List, Optional, TYPE_CHECKING
 from models.tipoProfesion_model import TipoProfesionModel
+from models.expediente_profesional_model import Expediente_ProfesionalModel
+
+if TYPE_CHECKING:
+    from models.expediente_profesional_model import Expediente_ProfesionalModel
 
 class ProfesionalModel(SQLModel, table=True):
     __tablename__ = "Profesional"
@@ -23,4 +27,7 @@ class ProfesionalModel(SQLModel, table=True):
 
     # Relación con TipoProfesion
     tipoProfesion: Optional[TipoProfesionModel] = Relationship()
+    #relacion N a N
+    expedientes: List["Expediente_ProfesionalModel"] = Relationship(back_populates="profesional")
+
    

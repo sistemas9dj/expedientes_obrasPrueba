@@ -1,5 +1,5 @@
 {% block modal %}
-<div class="modal fade" id="update_Expediente" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+<div class="modal fade" id="update_Expediente" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="basicModal" aria-hidden="true">
     <div class="modal-dialog modal-xl ">
         <div class="modal-content">
             <div class="modal-header">
@@ -198,7 +198,64 @@
                                 </div>
                             </div>    
 
-
+                            <!--Bloque Profesional-->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <a class="card-link" data-toggle="collapse" href="#collapseThree">
+                                        <div class="row" >
+                                            <div class="col-md-12 mb-1">
+                                                <h5><strong></strong>Profesional (Clickee aquí para ingresar los datos)</strong></h5>
+                                                <h6>Si el profesional no figura. Salga de esta opción y agreguelo por la opción Tablas/Profesionales </h6>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                                 
+                               <div class="card-body">
+                                    <fieldset class="form-group">
+                                        <div id="collapseThree" class="collapse" data-parent="#accordion">
+                                            <div class="row">
+                                                <div class="form-group col-md-6">
+                                                    <label ><strong>PROFESIONAL *</strong></label>
+                                                                        
+                                                    <select name="idProfesionalEdit" id="idProfesionalEdit" class="form-control" required>
+                                                        <option value="" selected>Seleccione Profesional</option>
+                                                        {% for profesional in profesionales %}
+                                                            <option value="{{ profesional.idProfesional ~ '*'  ~profesional.apellido ~ ', ' ~ profesional.nombre ~ ' /Mat. ' ~ profesional.matricula }}">{{ profesional.apellido ~ ', ' ~ profesional.nombre ~ ' /Mat. ' ~ profesional.matricula}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-md-6">
+                                                    <label ><strong>CONTACTO PPAL.</strong></label>
+                                                    <select name="contactoPpalEdit" id="contactoPpalEdit" class="form-control" required>
+                                                        <option value="1" >SI</option>
+                                                        <option value="0" selected>NO</option>
+                                                    </select>
+                                                </div>
+                                                <!--Carga dinámica por fechas alternadas por javaScript-->
+                                                    <input type="hidden" id="idFilaProfEdit" name="idFilaProfEdit" value="1" />
+                                                    <div class="row col-md-12" align="center">
+                                                        <div class="form-group col-md-12"  >
+                                                            <button type="button" class="boton_1" onclick="alert ('Entre!!!');insertarProfesionalesEdit()" title="Agregar Profesional"  ><i class='glyphicon glyphicon-plus'></i> Agregar Profesional</button>
+                                                        </div>
+                                                    </div> 
+                                                    <div class="col-md-12">
+                                                        <table id="tablaProfesionalesEdit" class="tbl" border="0" cellspacing="1" cellpadding="4" width="100%" >   
+                                                            <tr id='0' name= '0'>          
+                                                                <td class="hr" width="10" align="left"></td>
+                                                                <td class="hr" width="10" align="left"></td>
+                                                                <td class="hr" width="50" align="left"><strong>PROFESIONAL</strong></td>
+                                                                <td class="hr" width="50" align="left"><strong>PPAL.</strong></td>
+                                                            </tr>
+                                                        </table> 
+                                                    </div>
+                                                <!--Fin Carga dinámica por javaScript-->
+                                            </div>
+                                        </div> 
+                                    </fieldset>    
+                                </div>
+                            </div>    
+        
                             <div class="modal-footer">
                                 <button type="button" class="cancela btn btn-default" data-dismiss="modal">Cerrar</button>
                                 <button type="submit" class="acepta btn btn-success" id="modificar_Expediente" >Actualizar</button>
@@ -272,8 +329,47 @@
     }
 
     function deletePropietarioEdit(idFila){
+        
         document.getElementById(idFila).remove();
        // document.getElementById("contFila").value = document.getElementById("contFila").value -1;
+    }
+
+    function insertarProfesionalesEdit(){
+        alert ("Entre!!!");
+        idFila=document.getElementById("idFilaProfEdit").value;
+
+        //Leo Profesional de la forma idprofesiona*Apellido,nombre/ Matticula
+        let profesional = document.getElementById("idProfesionalEdit").value;
+        //Leo ID
+        let pos = profesional.indexOf("*");
+        let idProfesional = profesional.substr(0, pos);
+        profesional = profesional.substr( pos + 1 );
+
+        let contactoPpal = document.getElementById("contactoPpalEdit").value;
+                  
+        if(profesional == ''){alert("El Profesional es de ingreso obligatorio."); exit;}
+
+        valor= idProfesional + "/" + contactoPpal;
+         
+        style = "dr";
+
+        if ((idFila%2) != 0){ style = "sr";}
+        if(contactoPpal==0){ ppal= "NO";}else{ ppal= "SI";}
+        
+        let fila = "<td class='" + style + "' width='2'><input type='hidden' name='profEdit" + idFila + "' id='profEdit" + idFila + "' value='" + valor + "'></td><td class='" + style + "'  width='10'><button type='button' class='btn' onClick='deleteProfesionalEdit(" + idFila + ")' title='Borrar Profesional'><i class='icon-trash'></i></button></td><td class='" + style + "'  width='50' align='left'>" + profesional + "</td><td class='" + style + "'  width='50' align='left'>" + ppal + "</td>" ;
+                                                
+        let btn = document.createElement("TR");
+        btn.id=idFila;
+        btn.innerHTML=fila;
+        document.getElementById("tablaProfesionalesEdit").appendChild(btn);
+
+        //document.getElementById("contFila").value = `${idFila}`; 
+        document.getElementById("idFilaProfEdit").value = `${++idFila}`;       
+    }
+
+    function deleteProfesionalEdit(idFila){
+        document.getElementById(idFila).remove();
+      // document.getElementById("contFila").value = document.getElementById("contFila").value -1;
     }
 
     document.getElementById('formExpedienteUpdate').addEventListener('submit', async function(e) {
@@ -296,34 +392,42 @@
                 idTipoObra: formJSON.idTipoObraEdit,
                 IDESTADOEXPEDIENTEEditHIDDEN: formJSON.IDESTADOEXPEDIENTEEditHIDDEN,
                 idEstadoexpedienteEdit: formJSON.idEstadoExpedienteEdit,
+                // Tablas dinamicas: Propietarios y Profesionales
                 idFilaEdit: formJSON.idFilaEdit,
-                // Propietarios dinámicos
-                propietarios: []
+                idFilaProfEdit: formJSON.idFilaEdit,
+                propietarios: [],
+                profesionales: []
         };
         try {
+            // Recorrer todos los campos que empiezan con "propEdit" y agregarlos al array
+            for (let key in formJSON) {
+                if (key.startsWith('propEdit')) {
+                    payload.propietarios.push(formJSON[key]);
+                }
+            }
 
-    // Recorrer todos los campos que empiezan con "propEdit" y agregarlos al array
-    for (let key in formJSON) {
-        if (key.startsWith('propEdit')) {
-            payload.propietarios.push(formJSON[key]);
-        }
-    }
+            // Recorrer todos los campos que empiezan con "profEdit" y agregarlos al array
+            for (let key in formJSON) {
+                if (key.startsWith('profEdit')) {
+                    payload.profesionales.push(formJSON[key]);
+                }
+            }
 
-    //Mostrar payload completo con alert antes de enviar
-    //alert("Payload a enviar:\n" + JSON.stringify(payload, null, 2));
-           
+            //Mostrar payload completo con alert antes de enviar
+            //alert("Payload a enviar:\n" + JSON.stringify(payload, null, 2));
+                
             const response = await fetch(`/expediente/${id}`, {
-                method: "PUT",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                        method: "PUT",
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
             }); 
-            
+                 
             if (response.ok) {
-                $('#update_Expediente').modal('hide');
-                location.reload(); // recarga tabla con datos actualizados
+                    $('#update_Expediente').modal('hide');
+                    location.reload(); // recarga tabla con datos actualizados
             } else {
-                const error = await response.json();
-                alert('Error al actualizar el Expediente: ' + (error.error || 'Error desconocido'));
+                    const error = await response.json();
+                    alert('Error al actualizar el Expediente: ' + (error.error || 'Error desconocido'));
             }
         } catch (err) {
             alert('Error de red o del servidor: ' + err.message);

@@ -1,7 +1,7 @@
 {% block modal %}
 
-<div class="modal fade" id="add_Expediente" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
-    <div class="modal-dialog modal-xl ">
+<div class="modal fade" id="add_Expediente" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="basicModal" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="myModalLabel">Agregar Expediente</h4>
@@ -255,6 +255,7 @@
 {% endblock modal %}
 
 <script>
+
     // Establecer el año actual como valor por defecto y límite máximo
     const inputAnio = document.getElementById("anioMesaEntrada");
     const anioActual = new Date().getFullYear();
@@ -341,7 +342,7 @@
         if ((idFila%2) != 0){ style = "sr";}
         if(contactoPpal==0){ ppal= "NO";}else{ ppal= "SI";}
         
-        let fila = "<td class='" + style + "' width='2'><input type='hidden' name='" + idFila + "' id='" + idFila + "' value='" + valor + "'></td><td class='" + style + "'  width='10'><button type='button' class='btn' onClick='deleteProfesional(" + idFila + ")' title='Borrar Profesional'><i class='icon-trash'></i></button></td><td class='" + style + "'  width='50' align='left'>" + profesional + "</td><td class='" + style + "'  width='50' align='left'>" + ppal + "</td>" ;
+        let fila = "<td class='" + style + "' width='2'><input type='hidden' name='prof" + idFila + "' id='prof" + idFila + "' value='" + valor + "'></td><td class='" + style + "'  width='10'><button type='button' class='btn' onClick='deleteProfesional(" + idFila + ")' title='Borrar Profesional'><i class='icon-trash'></i></button></td><td class='" + style + "'  width='50' align='left'>" + profesional + "</td><td class='" + style + "'  width='50' align='left'>" + ppal + "</td>" ;
                                                 
         let btn = document.createElement("TR");
         btn.id=idFila;

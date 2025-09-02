@@ -19,7 +19,7 @@ class PropietarioModel(SQLModel, table=True):
     areaCelular: int | None = Field(default=None, nullable=True) 
     nroCelular: int | None = Field(default=None, nullable=True)
     email: str | None = Field(default=None, nullable=True)
-    figuraPpal: int | None = Field(default=1, nullable=True) 
+    #figuraPpal: int | None = Field(default=1, nullable=True) 
     
     #Relacion N a N
     #expedientes: List["Expediente_PropietarioModel"] = Relationship(back_populates="propietario")
