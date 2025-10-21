@@ -6,7 +6,6 @@ from fastapi.responses import RedirectResponse,JSONResponse
 from config.conexion import get_session
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
-
 from fastapi import status
 
 from models.expediente_model import ExpedienteModel
@@ -308,7 +307,7 @@ async def delete_expediente(
 # -------------------------------------------------
 # FUNCION AUXILIAR: ACTUALIZAR PROPIETARIOS N a N
 # -------------------------------------------------
-def actualizar_propietarios(session: Session, idExpediente: int, lista_propietarios: list[dict]):
+'''def actualizar_propietarios(session: Session, idExpediente: int, lista_propietarios: list[dict]):
     # Relaciones actuales
     relaciones_actuales = session.exec(
         select(Expediente_PropietarioModel).where(Expediente_PropietarioModel.idExpediente == idExpediente)
@@ -348,3 +347,4 @@ def actualizar_propietarios(session: Session, idExpediente: int, lista_propietar
                 idPropietario=propietario.idPropietario
             )
             session.add(relacion)
+'''
