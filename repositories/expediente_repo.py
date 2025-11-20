@@ -1,9 +1,12 @@
 from sqlmodel import Session, select
+from sqlalchemy import delete as sa_delete
+
 from models.expediente_model import ExpedienteModel
 from models.expediente_estadoExpediente_model import Expediente_EstadoExpedienteModel
 from models.propietario_model import PropietarioModel
 from models.expediente_propietario_model import Expediente_PropietarioModel
 from models.expediente_profesional_model import Expediente_ProfesionalModel
+from models.expediente_tipoObra_model import Expediente_TipoObraModel
 
 from repositories import propietario_repo, profesional_repo
 
@@ -22,7 +25,6 @@ def get_next_nro_entrada(session: Session, anioMesaEntrada: int) -> int:
 def get_all(session: Session) -> List[ExpedienteModel]:
     return session.exec(select(ExpedienteModel)
                                 .options(
-                                    selectinload(ExpedienteModel.tipoObra),
                                     selectinload(ExpedienteModel.estados).selectinload(Expediente_EstadoExpedienteModel.estado)
                                 )
                                 .order_by(ExpedienteModel.fechaIngresoSistema)
@@ -68,7 +70,7 @@ def get_profesionales(session: Session, idExpediente: int):
       
         return profesionales
 
-def create(session: Session, expediente : ExpedienteModel, propietarios : list[dict]) -> ExpedienteModel :
+def create(session: Session, expediente : ExpedienteModel, idEstadoExpediente: int, propietarios : list[dict]) -> ExpedienteModel :
     #Crea un expediente sin propietarios y son profesionales
     session.add(expediente)
     session.flush()  # OBTENÉS el id sin hacer commit
@@ -76,7 +78,7 @@ def create(session: Session, expediente : ExpedienteModel, propietarios : list[d
     # Registrar el estado inicial en la tabla expediente_estadoexpediente
     nuevo_estado = Expediente_EstadoExpedienteModel(
         idExpediente=expediente.idExpediente,
-        idEstadoExpediente=8, # estado incial por defecto 
+        idEstadoExpediente=idEstadoExpediente, 
         fechaCambioEstado= datetime.now()
     )
     
@@ -85,7 +87,7 @@ def create(session: Session, expediente : ExpedienteModel, propietarios : list[d
     session.refresh(expediente)
     return expediente 
 
-def create_expediente_completo(session: Session, expediente : ExpedienteModel, propietarios : list[dict], expedientesProfesionales : list[dict]) -> ExpedienteModel :
+def create_expediente_completo(session: Session, expediente : ExpedienteModel, idEstadoExpediente:int, lista_tiposObras: list, propietarios : list[dict], expedientesProfesionales : list[dict]) -> ExpedienteModel :
     #Crea un expedeinte completo, es decir, agrega las relaciones con estadoExpedeinte, propietariosExpedientes y ProfesionalesExpedientes
     session.add(expediente)
     session.commit()
@@ -94,10 +96,19 @@ def create_expediente_completo(session: Session, expediente : ExpedienteModel, p
     # Registrar el estado inicial en la tabla expediente_estadoexpediente
     nuevo_estado = Expediente_EstadoExpedienteModel(
         idExpediente=expediente.idExpediente,
-        idEstadoExpediente=8, # estado incial por defecto 
+        idEstadoExpediente = idEstadoExpediente, 
         fechaCambioEstado= datetime.now()
     )
     session.add(nuevo_estado)
+
+    # REGISTRAR TIPOS DE OBRA  (NUEVO)
+    for tipo in lista_tiposObras:
+        nuevo_tipo = Expediente_TipoObraModel(
+            idExpediente=expediente.idExpediente,
+            idTipoObra=int(tipo),
+            fechaAsignacion= datetime.now()
+        )
+        session.add(nuevo_tipo)
 
     #Crear propietarios y asociarlos a la tabla expediente_propietario
     for p_dict in propietarios:
@@ -152,20 +163,21 @@ def create_expediente_completo(session: Session, expediente : ExpedienteModel, p
         # Asociar propietarios al expediente (relación N a N)
         session.add(nuevo_ExpProp)
 
-        #Crear relacion expediente_profesional
-        for p in expedientesProfesionales:
-            #Registar la relacion Expediente_Profesional
-            nuevo_ExpProf = Expediente_ProfesionalModel(
-                idExpediente=expediente.idExpediente,
-                idProfesional=p.idProfesional,
-                contactoPpal=p.contactoPpal,
-                fechaIngresoSistema= datetime.now()
-            )
+    #Crear relacion expediente_profesional
+    for p in expedientesProfesionales:
+        #Registar la relacion Expediente_Profesional
+        nuevo_ExpProf = Expediente_ProfesionalModel(
+            idExpediente=expediente.idExpediente,
+            idProfesional=p.idProfesional,
+            contactoPpal=p.contactoPpal,
+            fechaIngresoSistema= datetime.now()
+        )
         
-            # Asociar propietarios al expediente (relación N a N)
-            session.add(nuevo_ExpProf)
+        # Asociar propietarios al expediente (relación N a N)
+        session.add(nuevo_ExpProf)
                 
     session.commit()
+    
     return "exito" 
 
 #-----------------------------------------------------------------------------------------------------
@@ -209,7 +221,6 @@ def update_expediente_con_propietarios(session: Session, expediente : Expediente
         # Buscar si ya existe un propietario con ese CUIL. 
         # SI EXISTE SOLO SE ACTUALIZAN LOS DATOS. A ESTA ALTURA SE VERIFICO QUE EL APELLIDO COINCIDE.
         cuil = p.cuil_cuit
-        #existing_propietario = session.exec(select(PropietarioModel).where(PropietarioModel.cuil_cuit == cuil)).first()
         existing_propietario = propietario_repo.get_by_cuit(session,cuil)
         
 
@@ -280,22 +291,20 @@ def update_expediente_con_propietarios(session: Session, expediente : Expediente
 
     # 3) Crear relacion expediente_profesional 
     # 3.1 Eliminar todas las relaciones para ese expediente y agregar sola las relaciones activas en esta instancia 
-    expediente_profesional = Expediente_ProfesionalModel(
-        idExpediente = expediente.idExpediente
+    session.execute(
+        sa_delete(Expediente_ProfesionalModel).where(Expediente_ProfesionalModel.idExpediente == expediente.idExpediente)
     )
-    session.delete(expediente_profesional)
 
     # 3.2 Para cada profesional de la lista creo la relacion 
     for p in profesionales:
         expediente_profesional = Expediente_ProfesionalModel(
             idExpediente = expediente.idExpediente,
-            idProfesional = p.idprofesional,
+            idProfesional = p.idProfesional,
             contactoPpal = p.contactoPpal,
             fechaIngresoSistema= datetime.now()
         )
         # Asociar propietarios al expediente (relación N a N)
         session.add(expediente_profesional)
-
                  
     session.commit()
     session.refresh(expediente)
@@ -306,4 +315,4 @@ def delete(session: Session, expediente : ExpedienteModel):  #creeria que no se 
     #session.commit()
 
     return expediente
-                               
+         

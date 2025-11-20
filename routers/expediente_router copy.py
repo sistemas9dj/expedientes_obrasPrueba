@@ -6,9 +6,7 @@ from fastapi.responses import RedirectResponse,JSONResponse
 from config.conexion import get_session
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
-from fastapi import HTTPException, status
-
-import json
+from fastapi import status
 
 from models.expediente_model import ExpedienteModel
 #from models.tipoObra_model import TipoObraModel
@@ -22,7 +20,6 @@ from services.expediente_service import ExpedienteService
 from services.profesional_service import ProfesionalService
 from services.tipoObra_service import TipoObraService
 from services.estadoExpediente_service import EstadoExpedienteService
-from services.tipoExpediente_service import TipoExpedienteService 
 
 from utils.mail import enviar_mail 
 
@@ -39,9 +36,6 @@ async def get_expedientes(request: Request, session: Session = Depends(get_sessi
     service = ExpedienteService(session)  # ✅ instanciás la clase
     expedientes = service.listar_expedientes()  # ✅ usás el método de instancia
 
-    service = TipoExpedienteService(session)  # ✅ instanciás la clase
-    tiposExpedientes = service.listar_tipoExpedientes()  # ✅ usás el método de instancia
-
     service = TipoObraService(session)  # ✅ instanciás la clase
     tipoObras = service.listar_tipoObras()  # ✅ usás el método de instancia
 
@@ -54,7 +48,6 @@ async def get_expedientes(request: Request, session: Session = Depends(get_sessi
     return templates.TemplateResponse("listar_expedientes.html", { 
         "request": request,
         "expedientes": expedientes,
-        "tiposExpedientes": tiposExpedientes,
         "tiposObras": tipoObras,
         "profesionales": profesionales,
         "estadosExpedientes": estadosExpedientes
@@ -79,10 +72,8 @@ async def agregar_expediente_post(
     sucesion : int = Form(...),
     idEstadoExpediente : int =  Form(...),
     observaciones : str = Form(...),
+    idTipoObra : int = Form(...),
     idFila: int = Form(...),  # cantPropietarios
-
-    # JSON con los tipos de obra seleccionados
-    idTipoObra: str = Form(...),
 
     session: Session = Depends(get_session)
     ):
@@ -94,14 +85,6 @@ async def agregar_expediente_post(
 
         #fechaIngresoSistema = datetime.now()
         fechaUltimaMod = datetime.now()
-
-        # ----------------------------------------------------------------------
-        # 1) PROCESAR TIPOS DE OBRA (VIENEN COMO JSON STRING)
-        # ----------------------------------------------------------------------
-        try:
-            lista_tiposObras = json.loads(idTipoObra)  # Ej: ["1","3","5"]
-        except:
-            raise HTTPException(status_code=400, detail="Error procesando idTipoObra")
 
         # Procesar propietarios
         valoresPropietarios = []
@@ -161,12 +144,12 @@ async def agregar_expediente_post(
             nroPartida=nroPartida,
             sucesion=sucesion,
             observaciones=observaciones,
-        #    idTipoObra=idTipoObra,
+            idTipoObra=idTipoObra,
         #    fechaIngresoSistema=fechaIngresoSistema,
             fechaUltimaMod=fechaUltimaMod  
         )
         
-        exito = service.crear_expediente(nuevo_expediente, idEstadoExpediente, lista_tiposObras, valoresPropietarios, valoresExpedientesProfesionales)  
+        exito = service.crear_expediente(nuevo_expediente, idEstadoExpediente, valoresPropietarios, valoresExpedientesProfesionales)  
         
         if "/" not in exito:
             # No contiene "/"
@@ -224,7 +207,7 @@ async def update_expediente(
         nroPartida=expediente_data["nroPartida"],
         sucesion=expediente_data["sucesion"],
         observaciones=expediente_data["observaciones"],
-       # idTipoObra=expediente_data["idTipoObra"],
+        idTipoObra=expediente_data["idTipoObra"],
         fechaUltimaMod=fechaUltimaMod  
     )
 

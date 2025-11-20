@@ -13,7 +13,7 @@
                     <div id="content">
                         <form id="formExpediente" action="/agregar_expediente" method="post" > 
         	                <div id="accordion">
-                            <!--Bloque Expediente-->
+<!--Bloque Expediente-->
                                 <div class="card shadow mb-4">
                                     <div class="card-header py-3">
                                         <a class="collapsed card-link" data-toggle="collapse" href="#collapseOne">
@@ -28,43 +28,20 @@
 			  	                        <fieldset class="form-group">
                                             <div id="collapseOne" class="collapse show" data-parent="#accordion">
                                                 <div class="row">
-                                                    <div class="form-group col-md-3 mb-2">
-                                                        <label for="nombre"><strong>TIPO DE EXPEDIENTE *</strong> </label>
-                                                        <select name="idTipoExpediente" id="idTipoExpediente" class="form-control" required>
-                                                            {% for tipo in tiposExpedientes %}
-                                                                <option selected value="{{ tipo.idTipoExpediente }}">{{ tipo.nombre }}</option>
+                                                    <div class="form-group col-md-6 mb-1">
+                                                        <label for="nombre"><strong>TIPO DE OBRA *</strong> </label>
+                                                        <select name="idTipoObra" id="idTipoObra" class="form-control" required>
+                                                            <option value="" selected>Seleccione Tipo de Obra</option>
+                                                            {% for tipo in tiposObras %}
+                                                                <option value="{{ tipo.idTipoObra }}">{{ tipo.nombre }}</option>
                                                             {% endfor %}
                                                         </select>
                                                     </div>
-                                                    <div class="form-group col-md-3 mb-2">
+                                                    <div class="form-group col-md-6 mb-2">
                                                         <label for="nombre"><strong>PARTIDA *</strong> </label>
                                                         <input type="number" class="form-control" align="left" title="Partida" name="nroPartida" id="nroPartida" placeholder="Partida *"  min="0" step="1" max="9999999" required/>
                                                     </div>
-                                                </div> 
-                                                <div class="row">
-                                                    <div class="form-group col-md-12 mb-2">
-                                                        <label for="nombre"><strong>TIPO DE OBRA *</strong> </label>
-                                                        <div id="tiposObrasContainer" style="border: 1px solid #ccc; padding: 10px; border-radius: 4px;">
-                                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 5px;">
-                                                                {% for tipo in tiposObras %}
-                                                                    <div class="form-check">
-                                                                        <input class="form-check-input tipo-obra-check"
-                                                                            type="checkbox"
-                                                                            name="tiposObra"
-                                                                            value="{{ tipo.idTipoObra }}"
-                                                                            id="tipoObra_{{ tipo.idTipoObra }}">
-                                                                        <label class="form-check-label" for="tipoObra_{{ tipo.idTipoObra }}">
-                                                                            {{ tipo.nombre }}
-                                                                        </label>
-                                                                    </div>
-                                                                {% endfor %}
-                                                            </div>
-                                                            <!-- Campo oculto donde se enviará la lista final en JSON -->
-                                                            <input type="hidden" name="idTipoObra" id="idTipoObra">
-                                                        </div>
-                                                    </div>
-                                                </div> 
-                                                  
+                                                </div>    
                                                 <div class="row">
                                                     <div class="form-group col-md-3 mb-2">
                                                         <label for="nombre"><strong>NRO. EXPEDIENTE MESA DE ENTRADA *</strong> </label>
@@ -134,7 +111,8 @@
                                                         <input name="cuil_cuit" type="text" class="form-control" id="cuil_cuit" title="Cuit o Cuil, con el formato xx-xxxxxxxx-x"  maxlength="13" pattern=".{13,}" onKeyPress="handleMask(event, &#39;99-99999999-9&#39;)" placeholder="__-________-_ CUIT/CUIL*"  style="width:250px" />
                                                     </div>
                                                     <div class="form-group col-md-3 mb-1">
-                                                        <label ><a href="https://www.cuitonline.com/" target="_blank" style="color:#fa51b9"><h6><strong>Consultá  <img src="/static/imagenes/cuil.png" width="80" height="50" /></strong></h6></a></label>
+                                                        <label ><strong></strong></label>
+                                                        <label ><a href="https://www.anses.gob.ar/consultas/constancia-de-cuil" target="_blank" style="color:#fa51b9"><h6><strong>Consulta CUIT/CUIL ANSES <img src="/static/imagenes/anses.png" width="30" height="30" /></strong></h6></a></label>
                                                     </div>
                                                     <div class="form-group col-md-2 mb-1">
                                                         <label for="descripcion"><strong>FIGURA COMO PPAL? * </strong> </label>
@@ -396,8 +374,6 @@
         const formData = new FormData(form);
 
         try {
-            actualizarTiposSeleccionados();
-
             const response = await fetch("/agregar_expediente", {
                 method: "POST",
                 body: formData
@@ -414,17 +390,5 @@
             alert('Error de red o del servidor: ' + err.message);
         }
     });
-
-    //Convierte los checkboxes de Tipo Obra en un JSON antes de enviar el form
-    function actualizarTiposSeleccionados() {
-        const seleccionados = [];
-        document.querySelectorAll('.tipo-obra-check:checked').forEach(cb => {
-            seleccionados.push(cb.value);
-        });
-
-        // Guardamos lista como JSON
-        document.getElementById("idTipoObra").value = JSON.stringify(seleccionados);
-    }
-
-    		
+		
 </script>

@@ -51,7 +51,7 @@ class ExpedienteService:
     def get_profesionales(self, idExpediente: int):
         return expediente_repo.get_profesionales(self.session,idExpediente)
     
-    def crear_expediente(self, nuevoExpediente: ExpedienteModel, propietarios_data: list[dict], expedientesProfesionales_data: list[dict]) -> Optional[ExpedienteModel]:
+    def crear_expediente(self, nuevoExpediente: ExpedienteModel, idEstadoExpediente: int, propietarios_data: list[dict], expedientesProfesionales_data: list[dict]) -> Optional[ExpedienteModel]:
         #Validar que no exista un propietario con el Cuil ingresado
         for p_dict in propietarios_data:
             p = p_dict["propietario"]
@@ -59,7 +59,7 @@ class ExpedienteService:
             if propietario:
                 return "duplicado/" +  p.cuil_cuit 
         
-        return expediente_repo.create_expediente_completo(self.session,nuevoExpediente, propietarios_data, expedientesProfesionales_data) 
+        return expediente_repo.create_expediente_completo(self.session,nuevoExpediente,idEstadoExpediente, propietarios_data, expedientesProfesionales_data) 
        
     def actualizar_expediente(self, updateExpediente: ExpedienteModel, idEstadoExpediente:int, idEstadoExpNuevo:int,propietarios_data: list[dict],profesionales_data: list[dict]) -> Optional[ExpedienteModel]:
         
@@ -68,7 +68,7 @@ class ExpedienteService:
             return "noExiste"
         
         # Actualizar campos manualmente
-        expediente.idTipoObra = updateExpediente.idTipoObra
+       # expediente.idTipoObra = updateExpediente.idTipoObra
         expediente.nroExpedienteMesaEntrada = updateExpediente.nroExpedienteMesaEntrada
         expediente.anioMesaEntrada = updateExpediente.anioMesaEntrada
         expediente.nroPartida = updateExpediente.nroPartida

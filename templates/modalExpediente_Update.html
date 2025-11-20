@@ -215,16 +215,17 @@
                                                     <div class="form-group col-md-6">
                                                         <label ><strong>PROFESIONAL *</strong></label>
                                                                             
-                                                        <select name="idProfesionalEdit" id="idProfesionalEdit" class="form-control" required>
+                                                        <select name="idProfesionalEdit" id="idProfesionalEdit" class="form-control" >
                                                             <option value="" selected>Seleccione Profesional</option>
                                                             {% for profesional in profesionales %}
                                                                 <option value="{{ profesional.idProfesional ~ '*'  ~profesional.apellido ~ ', ' ~ profesional.nombre ~ ' /Mat. ' ~ profesional.matricula }}">{{ profesional.apellido ~ ', ' ~ profesional.nombre ~ ' /Mat. ' ~ profesional.matricula}}</option>
                                                             {% endfor %}
                                                         </select>
+                                                        
                                                     </div>
                                                     <div class="form-group col-md-6">
                                                         <label ><strong>CONTACTO PPAL.</strong></label>
-                                                        <select name="contactoPpalEdit" id="contactoPpalEdit" class="form-control" required>
+                                                        <select name="contactoPpalEdit" id="contactoPpalEdit" class="form-control" >
                                                             <option value="1" >SI</option>
                                                             <option value="0" selected>NO</option>
                                                         </select>
@@ -400,8 +401,7 @@
                     payload.propietarios.push(formJSON[key]);
                 }
             }
-
-            // Recorrer todos los campos que empiezan con "profEdit" y agregarlos al array
+           // Recorrer todos los campos que empiezan con "profEdit" y agregarlos al array
             for (let key in formJSON) {
                 if (key.startsWith('profEdit')) {
                     payload.profesionales.push(formJSON[key]);
@@ -409,7 +409,7 @@
             }
 
             //Mostrar payload completo con alert antes de enviar
-            //alert("Payload a enviar:\n" + JSON.stringify(payload, null, 2));
+           alert("Payload a enviar:\n" + JSON.stringify(payload, null, 2));
                 
             const response = await fetch(`/expediente/${id}`, {
                         method: "PUT",

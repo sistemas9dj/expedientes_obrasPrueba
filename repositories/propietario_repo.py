@@ -36,6 +36,6 @@ def delete(session: Session, profesional: PropietarioModel):
 def get_by_cuit_distintApellido(session: Session, apellido : str, cuil: str) -> List[PropietarioModel]:
     return session.exec(select(PropietarioModel).where(PropietarioModel.apellido != apellido, PropietarioModel.cuil_cuit == cuil)).all()
 
-def get_by_cuit(session: Session, cuil: str) -> List[PropietarioModel]:
-    return session.exec(select(PropietarioModel).where(PropietarioModel.cuil_cuit == cuil)).all()
+def get_by_cuit(session: Session, cuil: str) -> PropietarioModel:
+    return session.exec(select(PropietarioModel).where(PropietarioModel.cuil_cuit == cuil)).first()
                                

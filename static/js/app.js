@@ -71,11 +71,30 @@ $(document).ready(function () {
 // Cuando se abre el modal Update Expediente
 $('#update_Expediente').on('show.bs.modal', async function (event) {
     let button = $(event.relatedTarget);
-    let idExpediente = button.data('id');  // el botón que abre el modal debe tener data-id
-
+       
+    let idExpediente = button.data('id');
+    let idTipoObra = button.data('idtipoobra');
+    let nroExpediente = button.data('nroexpediente');
+    let nroPartida = button.data('nropartida');
+    let nroExpedienteMesaEntrada = button.data('nroexpedientemesaentr');
+    let anioMesaEntrada = button.data('aniomesaentr');
+    let sucesion = button.data('sucesion');
+    let observaciones = button.data('observaciones');
+    let idEstadoExpediente = button.data('idestadoexpediente');
+       
     let modal = $(this);
-    modal.find('#IDEXPEDIENTEEditHIDDEN').val(idExpediente);
 
+    modal.find('#IDEXPEDIENTEEditHIDDEN').val(idExpediente);
+    modal.find('#idTipoObraEdit').val(idTipoObra);
+    modal.find('#nroExpedienteEdit').val(nroExpediente);
+    modal.find('#nroPartidaEdit').val(nroPartida);
+    modal.find('#nroExpedienteMesaEntradaEdit').val(nroExpedienteMesaEntrada);
+    modal.find('#anioMesaEntradaEdit').val(anioMesaEntrada);
+    modal.find('#sucesionEdit').val(sucesion);
+    modal.find('#observacionesEdit').val(observaciones);
+    modal.find('#idEstadoExpedienteEdit').val(idEstadoExpediente);
+    modal.find('#IDESTADOEXPEDIENTEEditHIDDEN').val(idEstadoExpediente);
+   
     //PROPIETARIOS
     // 🔹 1) Limpio tabla antes de cargar
     let tabla = document.getElementById("tablaPropietariosEdit");
@@ -152,7 +171,7 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
             // 🔹 3) Renderizo cada profesional en la tabla
             profesionales.forEach((p, idx) => {
                 let style = (idx % 2 === 0) ? "dr" : "sr";
-                let ppal = p.figuraPpal ? "SI" : "NO";
+                let ppal = p.contactoPpal ? "SI" : "NO";
 
                 // valor= idProfesional + "/" + contactoPpal;
                 let fila = `
@@ -184,18 +203,31 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
 
 });
 
-    // MODAL ELIMINAR EstadoExpediente - Muestra los datos del Estado del Expediente
-    $('#delete_EstadoExpediente').on('show.bs.modal', function (event) {
-        let button = $(event.relatedTarget);
-        let id = button.data('id');
-        let nombre = button.data('nombre');
-        let descripcion = button.data('descripcion');
 
-        let modal = $(this);
-        modal.find('#IDESTADOEXPEDIENTEDelHIDDEN').val(id);
-        modal.find('.modal-title2').text('¿Estás seguro de eliminar el Estado: ' + nombre + ' de los Expediente ?');     
-    });
+// MODAL Update EstadoInspeccion - Muestra los datos del Estado de la Inspeccion
+$('#update_EstadoExpediente').on('show.bs.modal', function (event) {
+    let button = $(event.relatedTarget);
+    let id = button.data('id');
+    let nombre = button.data('nombre');
+    let descripcion = button.data('descripcion');
 
+    let modal = $(this);
+    modal.find('#IDESTADOEXPEDIENTEEditHIDDEN').val(id);
+    modal.find('#NOMBREEdit').val(nombre);
+    modal.find('#DESCRIPCIONEdit').val(descripcion);
+});
+
+// MODAL ELIMINAR EstadoExpediente - Muestra los datos del Estado del Expediente
+$('#delete_EstadoExpediente').on('show.bs.modal', function (event) {
+    let button = $(event.relatedTarget);
+    let id = button.data('id');
+    let nombre = button.data('nombre');
+    let descripcion = button.data('descripcion');
+
+    let modal = $(this);
+    modal.find('#IDESTADOEXPEDIENTEDelHIDDEN').val(id);
+    modal.find('.modal-title2').text('¿Estás seguro de eliminar el Estado: ' + nombre + ' de los Expediente ?');     
+});
 
     // MODAL Update EstadoInspeccion - Muestra los datos del Estado de la Inspeccion
     $('#update_EstadoInspeccion').on('show.bs.modal', function (event) {
@@ -352,35 +384,7 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
     });
 
 
-   // MODAL Update Expediente - Muestra los datos del Expediente
-    $('#update_Expediente').on('show.bs.modal', function (event) {
-        let button = $(event.relatedTarget);
-    
-        let id = button.data('id');
-        let idTipoObra = button.data('idtipoobra');
-        let nroExpediente = button.data('nroexpediente');
-        let nroPartida = button.data('nropartida');
-        let nroExpedienteMesaEntrada = button.data('nroexpedientemesaentr');
-        let anioMesaEntrada = button.data('aniomesaentr');
-        let sucesion = button.data('sucesion');
-        let observaciones = button.data('observaciones');
-        let idEstadoExpediente = button.data('idestadoexpediente');
-       
-        let modal = $(this);
-
-        modal.find('#IDEXPEDIENTEEditHIDDEN').val(id);
-        modal.find('#idTipoObraEdit').val(idTipoObra);
-        modal.find('#nroExpedienteEdit').val(nroExpediente);
-        modal.find('#nroPartidaEdit').val(nroPartida);
-        modal.find('#nroExpedienteMesaEntradaEdit').val(nroExpedienteMesaEntrada);
-        modal.find('#anioMesaEntradaEdit').val(anioMesaEntrada);
-        modal.find('#sucesionEdit').val(sucesion);
-        modal.find('#observacionesEdit').val(observaciones);
-        modal.find('#idEstadoExpedienteEdit').val(idEstadoExpediente);
-        modal.find('#IDESTADOEXPEDIENTEEditHIDDEN').val(idEstadoExpediente);
-             
-    });
-
+   
     // MODAL ELIMINAR Expediente - Muestra los datos del Expediente
     $('#delete_Expediente').on('show.bs.modal', function (event) {
         let button = $(event.relatedTarget);
