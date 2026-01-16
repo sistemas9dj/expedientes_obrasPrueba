@@ -23,7 +23,7 @@ class Expediente_ProfesionalModel(SQLModel, table=True):
 
     # Relaciones con back_populates. Relacion N a N
     # Forward references (clases referenciadas como string)
-    expediente: Optional["ExpedienteModel"] = Relationship(back_populates="profesionales")
-    profesional: Optional["ProfesionalModel"] = Relationship(back_populates="expedientes")
+   # expediente: Optional["ExpedienteModel"] = Relationship(back_populates="profesionales")
+   # profesional: Optional["ProfesionalModel"] = Relationship(back_populates="expedientes")
     
    

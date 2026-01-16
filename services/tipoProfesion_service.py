@@ -1,5 +1,6 @@
 from sqlmodel import Session
 from typing import List, Optional
+
 from models.tipoProfesion_model import TipoProfesionModel
 
 from repositories import tipoProfesion_repo, profesional_repo

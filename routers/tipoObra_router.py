@@ -1,16 +1,16 @@
-from fastapi import APIRouter, Depends, Body, Form
+from fastapi import APIRouter, Depends, Body, Form, Request
 from typing import List
-from sqlmodel import Session, select
+from sqlmodel import Session
+from fastapi.responses import RedirectResponse
+
 from models.tipoObra_model import TipoObraModel
 from services.tipoObra_service import TipoObraService
-from fastapi.responses import RedirectResponse
-from fastapi import Request
+
 from config.conexion import get_session
-from config.conexion import session_dep 
+
 from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
-
 templates = Jinja2Templates(directory="templates")
 
 @router.get("/tiposObras", response_model=List[TipoObraModel])
@@ -31,13 +31,15 @@ async def agregar_tipoObra_get(request: Request, session: Session = Depends(get_
                                       
 @router.post("/agregar_tipoObra", response_model=TipoObraModel)
 async def agregar_tipoObra_post(
+    request: Request,
     nombre : str = Form(...),
     descripcion: str = Form(...),
     session: Session = Depends(get_session)
 ):
     nuevo_tipoObra = TipoObraModel(
         nombre=nombre,
-        descripcion=descripcion)
+        descripcion=descripcion,
+        idUsuarioCrear=request.session["user_id"])
     
     service = TipoObraService(session)  # ✅ instanciás la clase
     service.crear_tipoExpediente(nuevo_tipoObra)  # ✅ usás el método de instancia

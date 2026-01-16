@@ -22,20 +22,28 @@ class ExpedienteService:
 
         # Extraer el último estado asignado por expediente y generar un nuevo objeto expedientes con los datos extraidos de expediente 
         # agregados el id del ultimo estado y la fecha de la ultima modficacion del estado para mostrar en al tabla, ya que es una relacion n a n
+    
         expedientes_con_estado = []
+
         for exp in expedientes:
-            if exp.estados:
-                ultimo_estado_obj = sorted(exp.estados, key=lambda e: e.fechaCambioEstado)[-1].estado
-                ultimo_estado_id = ultimo_estado_obj.idEstadoExpediente
-                ultimo_estado_nombre = ultimo_estado_obj.nombre
-            else:
-                ultimo_estado_id = None
-                ultimo_estado_nombre = "Sin estado"
-            
+            ultimo_estado_id = None
+            ultimo_estado_nombre = "Sin estado"
+
+            ultimo_rel = expediente_repo.get_ultimo_estado_by_expediente(self.session, exp.idExpediente)
+
+            if ultimo_rel:
+                ultimo_estado_id = ultimo_rel.idEstadoExpediente
+
+                if ultimo_rel.estado:
+                    ultimo_estado_nombre = ultimo_rel.estado.nombre
+
+            tipos_obra_ids = [t.idTipoObra for t in exp.tipos] if exp.tipos else []
+
             expedientes_con_estado.append({
                 "expediente": exp,
                 "ultimo_estado_id": ultimo_estado_id,
-                "ultimo_estado_nombre": ultimo_estado_nombre
+                "ultimo_estado_nombre": ultimo_estado_nombre,
+                "tiposObra": tipos_obra_ids
             })
 
         return  expedientes_con_estado
@@ -51,7 +59,9 @@ class ExpedienteService:
     def get_profesionales(self, idExpediente: int):
         return expediente_repo.get_profesionales(self.session,idExpediente)
     
-    def crear_expediente(self, nuevoExpediente: ExpedienteModel, idEstadoExpediente: int, propietarios_data: list[dict], expedientesProfesionales_data: list[dict]) -> Optional[ExpedienteModel]:
+    
+    
+    def crear_expediente(self, nuevoExpediente: ExpedienteModel, idEstadoExpediente: int, lista_tiposObras: list[dict], propietarios_data: list[dict], expedientesProfesionales_data: list[dict]) -> Optional[ExpedienteModel]:
         #Validar que no exista un propietario con el Cuil ingresado
         for p_dict in propietarios_data:
             p = p_dict["propietario"]
@@ -59,16 +69,17 @@ class ExpedienteService:
             if propietario:
                 return "duplicado/" +  p.cuil_cuit 
         
-        return expediente_repo.create_expediente_completo(self.session,nuevoExpediente,idEstadoExpediente, propietarios_data, expedientesProfesionales_data) 
+        return expediente_repo.create_expediente_completo(self.session,nuevoExpediente,idEstadoExpediente, lista_tiposObras, propietarios_data, expedientesProfesionales_data) 
        
     def actualizar_expediente(self, updateExpediente: ExpedienteModel, idEstadoExpediente:int, idEstadoExpNuevo:int,propietarios_data: list[dict],profesionales_data: list[dict]) -> Optional[ExpedienteModel]:
         
         expediente = expediente_repo.get_by_id(self.session, updateExpediente.idExpediente)
+        
         if not expediente:
             return "noExiste"
         
         # Actualizar campos manualmente
-       # expediente.idTipoObra = updateExpediente.idTipoObra
+        #expediente.idTipoObra = updateExpediente.idTipoObra
         expediente.nroExpedienteMesaEntrada = updateExpediente.nroExpedienteMesaEntrada
         expediente.anioMesaEntrada = updateExpediente.anioMesaEntrada
         expediente.nroPartida = updateExpediente.nroPartida

@@ -28,14 +28,17 @@ async def agregar(nombre: str = Form(...), descripcion: str = Form(...), session
 
 @router.post("/agregar_estadoInspeccion", response_model=EstadoInspeccionModel)
 async def agregar_estadoInspeccion_post(
+    request: Request,
     nombre : str = Form(...),
     descripcion: str = Form(...),
     session: Session = Depends(get_session)
 ):
     nuevo_estadoInspeccion = EstadoInspeccionModel(
         nombre=nombre,
-        descripcion=descripcion)
-    
+        descripcion=descripcion,
+        idUsuarioCrear=request.session["user_id"]
+    )
+        
     service = EstadoInspeccionService(session)
     service.crear_estado(nuevo_estadoInspeccion)
     return RedirectResponse("/estadosInspecciones", status_code=303)

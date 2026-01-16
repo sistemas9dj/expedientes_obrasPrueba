@@ -21,22 +21,26 @@ async def get_estadoExpedientes(request: Request, session: Session = Depends(get
         "estadosExpedientes": estados
     })
 
-@router.get("/agregar_estadoExpediente", response_model=EstadoExpedienteModel)
-async def agregar(nombre: str = Form(...), descripcion: str = Form(...), session: Session = Depends(get_session)):
-    service = EstadoExpedienteService(session)
-    service.crear_estado(nombre, descripcion)
-    return RedirectResponse("/estadosExpedientes", status_code=303)
+@router.get("/agregar_estadoExpediente")
+async def agregar(request: Request):
+    return templates.TemplateResponse(
+        "modalEstadoExpediente_add.html",
+        {"request": request}
+    )
                                       
 @router.post("/agregar_estadoExpediente", response_model=EstadoExpedienteModel)
 async def agregar_estadoExpediente_post(
+    request: Request,
     nombre : str = Form(...),
     descripcion: str = Form(...),
     session: Session = Depends(get_session)
 ):
     nuevo_estadoExpediente = EstadoExpedienteModel(
         nombre=nombre,
-        descripcion=descripcion)
-    
+        descripcion=descripcion,
+        idUsuarioCrear=request.session["user_id"]
+    )
+     
     service = EstadoExpedienteService(session)
     service.crear_estado(nuevo_estadoExpediente)
     return RedirectResponse("/estadosExpedientes", status_code=303)

@@ -2,9 +2,9 @@ from fastapi import Depends
 from typing import Annotated
 from sqlmodel import Session, create_engine, SQLModel
 from urllib.parse import quote_plus
+from dotenv import load_dotenv
 
 import os
-from dotenv import load_dotenv
 
 load_dotenv()
 

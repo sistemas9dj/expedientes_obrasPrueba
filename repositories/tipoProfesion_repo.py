@@ -2,7 +2,6 @@ from sqlmodel import Session, select
 from models.tipoProfesion_model import TipoProfesionModel
 from typing import List, Optional
 
-
 def get_all(session: Session) -> List[TipoProfesionModel]:
     return session.exec(select(TipoProfesionModel).order_by(TipoProfesionModel.nombre)).all()
 

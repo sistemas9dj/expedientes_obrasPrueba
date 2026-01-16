@@ -1,25 +1,67 @@
+function handleMask(event, mask) {
+    const input = event.target;
+    const isDelete =
+        event.inputType === "deleteContentBackward" ||
+        event.inputType === "deleteContentForward";
 
-function handleMask(event,mask){with(event){
-		stopPropagation()
-		preventDefault()
-		if(!charCode)return
-		var c=String.fromCharCode(charCode)
-		if(c.match(/\D/))return
-		with(target){var val=value.substring(0,selectionStart)+c+value.substr(selectionEnd)
-		var pos=selectionStart+1}}
-		var nan=count(val,/\D/,pos)
-		val=val.replace(/\D/g,'')
-		var mask=mask.match(/^(\D*)(.+9)(\D*)$/)
-		if(!mask)return
-		if(val.length>count(mask[2],/9/))return
-		for(var txt='',im=0,iv=0;im<mask[2].length&&iv<val.length;im+=1){var c=mask[2].charAt(im)
-		txt+=c.match(/\D/)?c:val.charAt(iv++)}
-		with(event.target){value=mask[1]+txt+mask[3]
-		selectionStart=selectionEnd=pos+(pos==1?mask[1].length:count(value,/\D/,pos)-nan)}
-		function count(str,c,e){e=e||str.length
-		for(var n=0,i=0;i<e;i+=1)if(str.charAt(i).match(c))n+=1
-		return n}}
-        
+    // Valor actual sin separadores
+    let digits = input.value.replace(/\D/g, "");
+
+    // Si se ingresó algo que no es número, cancelamos la escritura
+    if (!isDelete && !/^\d$/.test(event.data)) {
+        input.value = applyMask(digits, mask);
+        return;
+    }
+
+    if (isDelete) {
+        // eliminamos un dígito desde la posición del cursor
+        const pos = input.selectionStart;
+        const before = input.value.slice(0, pos).replace(/\D/g, "");
+        const after  = input.value.slice(pos).replace(/\D/g, "");
+        digits = before.slice(0, -1) + after;
+    } else {
+        digits += event.data; // agregamos el dígito nuevo
+    }
+
+    // Limitar a la cantidad de '9'
+    const max = (mask.match(/9/g) || []).length;
+    digits = digits.slice(0, max);
+
+    // reconstruimos con máscara
+    const masked = applyMask(digits, mask);
+
+    // guardamos posición deseada del cursor
+    let newPos = calcCursorPos(mask, digits.length);
+
+    input.value = masked;
+    input.setSelectionRange(newPos, newPos);
+}
+
+function applyMask(digits, mask) {
+    let out = "";
+    let i = 0;
+    for (const m of mask) {
+        if (m === "9") out += digits[i++] ?? "";
+        else out += digits[i] !== undefined ? m : "";
+    }
+    return out;
+}
+
+// cursor después del dígito n aplicado a la máscara
+function calcCursorPos(mask, nDigits) {
+    let count = 0, pos = 0;
+    for (let i = 0; i < mask.length; i++) {
+        if (mask[i] === "9") {
+            count++;
+            pos++;
+            if (count === nDigits) return pos;
+        } else {
+            pos++;
+        }
+    }
+    return pos;
+}
+
 function cerrarModal(idModal) {
        var modal = document.getElementById(idModal);
        modal.style.display = "none"; //  o modal.classList.remove('show');
@@ -73,7 +115,6 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
     let button = $(event.relatedTarget);
        
     let idExpediente = button.data('id');
-    let idTipoObra = button.data('idtipoobra');
     let nroExpediente = button.data('nroexpediente');
     let nroPartida = button.data('nropartida');
     let nroExpedienteMesaEntrada = button.data('nroexpedientemesaentr');
@@ -81,11 +122,16 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
     let sucesion = button.data('sucesion');
     let observaciones = button.data('observaciones');
     let idEstadoExpediente = button.data('idestadoexpediente');
+
+    const tiposObraStr = button.data('tiposobra'); 
+    //Limpiar todos los checks de tipo de obras
+    document.querySelectorAll('.tipo-obra-check').forEach(chk => {
+        chk.checked = false;
+    });
        
     let modal = $(this);
 
     modal.find('#IDEXPEDIENTEEditHIDDEN').val(idExpediente);
-    modal.find('#idTipoObraEdit').val(idTipoObra);
     modal.find('#nroExpedienteEdit').val(nroExpediente);
     modal.find('#nroPartidaEdit').val(nroPartida);
     modal.find('#nroExpedienteMesaEntradaEdit').val(nroExpedienteMesaEntrada);
@@ -94,6 +140,18 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
     modal.find('#observacionesEdit').val(observaciones);
     modal.find('#idEstadoExpedienteEdit').val(idEstadoExpediente);
     modal.find('#IDESTADOEXPEDIENTEEditHIDDEN').val(idEstadoExpediente);
+
+    //Cargar los tipos de obras
+    if (tiposObraStr) {
+        const tiposArray = tiposObraStr.toString().split(',').map(Number);
+
+        tiposArray.forEach(id => {
+            const checkbox = document.getElementById(`tipoObraEdit_${id}`);
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        });
+    }
    
     //PROPIETARIOS
     // 🔹 1) Limpio tabla antes de cargar
@@ -170,8 +228,9 @@ $('#update_Expediente').on('show.bs.modal', async function (event) {
             const profesionales = await resp.json();
             // 🔹 3) Renderizo cada profesional en la tabla
             profesionales.forEach((p, idx) => {
+
                 let style = (idx % 2 === 0) ? "dr" : "sr";
-                let ppal = p.contactoPpal ? "SI" : "NO";
+                let ppal = (p.contactoPpal == 1) ? "SI" : "NO";
 
                 // valor= idProfesional + "/" + contactoPpal;
                 let fila = `

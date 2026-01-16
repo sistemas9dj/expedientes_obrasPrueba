@@ -2,7 +2,6 @@ from sqlmodel import Session, select
 from models.propietario_model import PropietarioModel
 from typing import List, Optional
 from sqlalchemy.orm import selectinload
-from datetime import datetime
 
 def get_all(session: Session) -> List[PropietarioModel]:
     return session.exec(select(PropietarioModel)

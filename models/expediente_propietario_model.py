@@ -1,9 +1,10 @@
 #Relacion N a N entre Expedeinte y Esatdo Expediente. 
 #Esta relacion Guarda los distintos estados por los que pasa el Expediente y registra las fecha
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field #, Relationship
 from sqlalchemy import Column, DateTime, func
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING
+
+#from typing import Optional, TYPE_CHECKING
 
 
 #if TYPE_CHECKING:

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Body, Form
 from typing import List, Optional
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 from models.profesional_model import ProfesionalModel
 from services.profesional_service import ProfesionalService
@@ -39,7 +39,7 @@ async def agregar_profesional_get(request: Request, session: Session = Depends(g
 @router.post("/agregar_profesional", response_model=ProfesionalModel)
 async def agregar_profesional_post(
     
-   # request: Request,
+    request: Request,
     cuil_cuit : str = Form(...),
     nombre : str = Form(...),
     apellido: str = Form(...),
@@ -73,7 +73,8 @@ async def agregar_profesional_post(
         nroCelular  = nro_celular_int,
         matricula  = matricula,
         email  = email,
-        idTipoProfesion = idTipoProfesion   
+        idTipoProfesion = idTipoProfesion,
+        idUsuarioCrear=request.session["user_id"]   
         )
     
     service = ProfesionalService(session)  # ✅ instanciás la clase

@@ -2,7 +2,7 @@ from sqlmodel import Session, select
 from models.profesional_model import ProfesionalModel
 from typing import List, Optional
 from sqlalchemy.orm import selectinload
-from datetime import datetime
+
 
 def get_all(session: Session) -> List[ProfesionalModel]:
     return session.exec(select(ProfesionalModel)

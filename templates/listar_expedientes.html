@@ -16,7 +16,7 @@
 <!--Nombre de las Columnas a mostar-->
 {% set encabezado = [
       {'nombre': 'NRO EXP.'},
-      {'nombre': 'TIPO'},
+      {'nombre': 'TIPO EXP.'},
       {'nombre': 'ESTADO'},
       {'nombre': 'FECHA ULT. MOD.'}
     ] %}
@@ -33,16 +33,15 @@
     {% set _ = valores.append({
         'id': expediente.idExpediente,
         'nroExpediente': expediente.nroEntrada ~ '/' ~ expediente.anioMesaEntrada,
-        'tipoObra': expediente.tipoObra.nombre if expediente.tipoObra else 'Sin Tipo',
+        'tipoExpediente': expediente.tipoExpediente.nombre if expediente.tipoExpediente else 'Sin Tipo',
         'estado': estado_nombre,
         'fechaUltimaMod': expediente.fechaUltimaMod.strftime('%d/%m/%Y') if expediente.fechaUltimaMod else '',
-        'idTipoObra': expediente.idTipoObra,
+        'tiposObra': item.tiposObra | join(','),
         'nroPartida': expediente.nroPartida,
         'nroExpedienteMesaEntrada': expediente.nroExpedienteMesaEntrada,
         'anioMesaEntrada': expediente.anioMesaEntrada,
         'sucesion': expediente.sucesion,
-        'observaciones': expediente.observaciones,
-        'idEstadoExpediente': estado_id
+        'observaciones': expediente.observaciones
     }) %}
 {% endfor %}
 

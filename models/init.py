@@ -9,6 +9,7 @@ from .inspector_model import InspectorModel
 from .profesional_model import ProfesionalModel
 from .tipoExpediente_model import TipoExpedienteModel
 from .tipoProfesion_model import TipoProfesionModel
+from .usuario_model import UsuarioModel
 
 
 __all__ = [
@@ -23,4 +24,5 @@ __all__ = [
     "InspectorModel",
     "TipoExpedienteModel",
     "TipoProfesionModel",
+    "UsuarioModel"
 ]

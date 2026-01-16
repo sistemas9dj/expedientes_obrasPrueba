@@ -1,15 +1,16 @@
-from fastapi import APIRouter, Depends, Body, Form
+from fastapi import APIRouter, Depends, Body, Form, Request
 from typing import List
-from sqlmodel import Session, select
-from models.tipoExpediente_model import TipoExpedienteModel
-from services.tipoExpediente_service import TipoExpedienteService
+from sqlmodel import Session
+
 from fastapi.responses import RedirectResponse
-from fastapi import Request
-from config.conexion import get_session
 from fastapi.templating import Jinja2Templates
 
-router = APIRouter()
+from models.tipoExpediente_model import TipoExpedienteModel
+from services.tipoExpediente_service import TipoExpedienteService
 
+from config.conexion import get_session
+
+router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 @router.get("/tiposExpedientes", response_model=List[TipoExpedienteModel])
@@ -29,13 +30,15 @@ async def agregar_tipoExpediente_get(request: Request, session: Session = Depend
                                       
 @router.post("/agregar_tipoExpediente", response_model=TipoExpedienteModel)
 async def agregar_tipoExpediente_post(
+    request: Request,
     nombre : str = Form(...),
     descripcion: str = Form(...),
     session: Session = Depends(get_session)
 ):
     nuevo_tipoExpediente = TipoExpedienteModel(
         nombre=nombre,
-        descripcion=descripcion)
+        descripcion=descripcion,
+        idUsuarioCrear=request.session["user_id"])
     
     service = TipoExpedienteService(session)
     service.crear_tipoExpediente(nuevo_tipoExpediente)

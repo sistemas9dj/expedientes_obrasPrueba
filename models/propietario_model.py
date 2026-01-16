@@ -1,4 +1,6 @@
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field #, Relationship
+from datetime import datetime
+from sqlalchemy import Column, DateTime, func
 #from typing import List, TYPE_CHECKING
 
 #if TYPE_CHECKING:
@@ -19,7 +21,10 @@ class PropietarioModel(SQLModel, table=True):
     areaCelular: int | None = Field(default=None, nullable=True) 
     nroCelular: int | None = Field(default=None, nullable=True)
     email: str | None = Field(default=None, nullable=True)
-    #figuraPpal: int | None = Field(default=1, nullable=True) 
+    #figuraPpal: int | None = Field(default=1, nullable=True)
+    idUsuarioCrear: int = Field(default=None, foreign_key="Usuario.idUsuario", nullable=False)
+    fechaIngresoSistema: datetime = Field(sa_column=Column(DateTime, server_default=func.now()))
+      
     
     #Relacion N a N
     #expedientes: List["Expediente_PropietarioModel"] = Relationship(back_populates="propietario")
@@ -34,4 +39,4 @@ class PropietarioModel(SQLModel, table=True):
 
     #orm_mode = True,permite que FastAPI va a poder convertir automáticamente los objetos SQLAlchemy en JSON válido.
     class Config:
-            orm_mode = True
+      from_attributes = True

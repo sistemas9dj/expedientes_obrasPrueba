@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends, Body, Form
 from typing import List
-from sqlmodel import Session, select
+from sqlmodel import Session
 from models.inspector_model import InspectorModel
 from services.inspector_service import InspectorService
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import RedirectResponse
 from fastapi import Request
 from config.conexion import get_session
-from config.conexion import session_dep 
 from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
@@ -33,13 +32,16 @@ async def agregar_inspector_get(nombre: str = Form(...), apellido: str = Form(..
                                       
 @router.post("/agregar_inspector", response_model=InspectorModel)
 async def agregar_inspector_post(
+    request: Request,
     nombre : str = Form(...),
     apellido: str = Form(...),
     session: Session = Depends(get_session)
 ):
     nuevo_inspector = InspectorModel(
         nombre=nombre,
-        apellido=apellido)
+        apellido=apellido,
+        idUsuarioCrear=request.session["user_id"]
+    )
     
     service = InspectorService(session)
     service.crear_inspector(nuevo_inspector)
